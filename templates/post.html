@@ -1,0 +1,35 @@
+<article class="post">
+  <header>
+    <h1>{{ title }}</h1>
+    <p class="meta"><time datetime="{{ date }}">{{ date }}</time></p>
+    <p class="tags">{{ tags }}</p>
+  </header>
+
+  <section class="key-points" aria-label="Key points">
+    <h2>Key points</h2>
+    <ul>
+{{ key_points }}
+    </ul>
+  </section>
+
+  <div class="post-body">
+{{ body }}
+  </div>
+
+  <aside class="callout" role="note">
+{{ callout }}
+  </aside>
+
+  <section class="faq">
+    <h2>Frequently asked questions</h2>
+{{ faq }}
+  </section>
+
+  <p class="official-link">
+    Official source: <a href="{{ official_link }}" rel="noopener noreferrer" target="_blank">{{ official_link }}</a>
+  </p>
+
+  <footer>
+    <p><a href="/">&larr; Back to all posts</a></p>
+  </footer>
+</article>

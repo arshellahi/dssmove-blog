@@ -1,0 +1,50 @@
+# Build output
+site/
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+credentials*
+secrets*
+*.secret
+service-account*.json
+gha-secrets*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.python-version
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs / temp
+*.log
+*.tmp
+tmp/
+.cache/
+
+# Node (in case anyone adds JS tooling later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
