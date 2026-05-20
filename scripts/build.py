@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""DSS Move blog static site builder.
+"""DSSmove blog static site builder.
 
 Usage:
     python3 scripts/build.py              # build site/ from posts, templates, static
@@ -40,8 +40,8 @@ BLOG_BASE = ""  # blog lives at the root of its subdomain; no URL prefix
 # Canonical site origin — used for canonical URLs, OpenGraph, and JSON-LD.
 # Change here if the blog moves to a different host.
 SITE_URL = "https://blog.dssmove.co.uk"
-SITE_NAME = "DSS Move blog"
-PUBLISHER_NAME = "DSS Move"
+SITE_NAME = "DSSmove blog"
+PUBLISHER_NAME = "DSSmove"
 
 # Calculator URL — hosted on the main site, not on this subdomain.
 # Used by the calculator banner in base.html / post.html templates.
@@ -657,7 +657,7 @@ def render_article_jsonld(post, canonical_url: str, logo_url: str) -> str:
 
 CTA_HTML = (
     '<a class="cta-button" href="https://app.dssmove.co.uk/" rel="noopener">'
-    'Search for your next property on Dssmove &rarr;'
+    'Search for your next property on DSSmove &rarr;'
     '</a>'
 )
 
@@ -794,7 +794,7 @@ def run_checks(check_external: bool) -> int:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="DSS Move blog builder")
+    parser = argparse.ArgumentParser(description="DSSmove blog builder")
     parser.add_argument("--check", action="store_true",
                         help="validate only; do not write public/blog/")
     parser.add_argument("--check-external", action="store_true",

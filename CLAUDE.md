@@ -4,7 +4,7 @@ These rules apply to any Claude Code session working inside this folder. Read th
 
 ## What this repo is
 
-Static blog for **DSS Move** (dssmove.com) — short posts about the UC / Housing Benefit rental market, market notes, and product updates. Audience: landlords, agents, and renters using the directory.
+Static blog for **DSSmove** (dssmove.com) — short posts about the UC / Housing Benefit rental market, market notes, and product updates. Audience: landlords, agents, and renters using the directory.
 
 The repo is **private**. Anything published here may eventually be made public, but treat the working tree as private by default.
 
@@ -81,13 +81,13 @@ Every post page shows the green "Check what you can claim — Use the benefits c
 1. **Top of every page** (blog index and post pages) — wrapped in `.top-banner-wrap`, lives in `templates/base.html`.
 2. **Above the Frequently Asked Questions section** on every post — uses the `.top-banner--inline` modifier, lives in `templates/post.html`.
 
-The brand-purple "Search for your next property on Dssmove →" CTA is injected automatically at the **mid-post h2 boundary** by `build.py` (`insert_cta_at_midpoint`).
+The brand-purple "Search for your next property on DSSmove →" CTA is injected automatically at the **mid-post h2 boundary** by `build.py` (`insert_cta_at_midpoint`).
 
 All three are template / build-time rules. **Never copy these banners into individual post Markdown files.** If you change the wording, change it in the templates / `CTA_HTML` constant and it applies to every post in one go.
 
 ## Editorial brief
 
-Posts follow the DSS Move voice:
+Posts follow the DSSmove voice:
 - **Audience:** people on UC / Housing Benefit looking for a place to rent.
 - **Reading age ~9.** Plain UK English. Short sentences (12–18 words). Avoid jargon; if you must use an acronym, spell it out first (`Universal Credit (UC)`).
 - **Numbers as digits.** £ before amount (`£950`, not `950 GBP`). ISO dates (`2026-05-20`).
@@ -106,7 +106,7 @@ Posts follow the DSS Move voice:
 ## Style
 
 - Prose: plain UK English, second person ("you"), short sentences. Numbers as digits. £ before amount (`£950`, not `950 GBP`).
-- Headings: sentence case ("How DSS Move works", not "How DSS Move Works").
+- Headings: sentence case ("How DSSmove works", not "How DSSmove Works").
 - Filenames: kebab-case, dated (`2026-05-20-welcome.md`).
 
 ## Memory of standing user rules
