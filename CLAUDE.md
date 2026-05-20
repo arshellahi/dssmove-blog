@@ -72,6 +72,17 @@ The repo is **private**. Anything published here may eventually be made public, 
 6. **Internal links** (paths starting with `/`) must point to a slug that exists in `posts/` or a file in `static/`.
 7. Run `--check`, then `build`, then preview: `cd public && python3 -m http.server 8080` and open `http://localhost:8080/blog/<slug>/`.
 
+## Calculator-banner placement rule
+
+Every post page shows the green "Check what you can claim — Use the benefits calculator →" banner in **two** places:
+
+1. **Top of every page** (blog index and post pages) — wrapped in `.top-banner-wrap`, lives in `templates/base.html`.
+2. **Above the Frequently Asked Questions section** on every post — uses the `.top-banner--inline` modifier, lives in `templates/post.html`.
+
+The brand-purple "Search for your next property on Dssmove →" CTA is injected automatically at the **mid-post h2 boundary** by `build.py` (`insert_cta_at_midpoint`).
+
+All three are template / build-time rules. **Never copy these banners into individual post Markdown files.** If you change the wording, change it in the templates / `CTA_HTML` constant and it applies to every post in one go.
+
 ## Editorial brief
 
 Posts follow the DSS Move voice:

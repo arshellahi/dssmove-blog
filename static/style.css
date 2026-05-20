@@ -69,6 +69,11 @@ body {
 }
 .top-banner strong { font-weight: 800; }
 
+/* Inline variant: same visual, used INSIDE main (no wrap needed).
+   Adds vertical breathing room so it sits naturally between content
+   sections (e.g. between the callout and the FAQ on a post page). */
+.top-banner--inline { margin: 2.5rem 0; }
+
 .top-banner-inner {
   display: inline-flex;
   align-items: center;
