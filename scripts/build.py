@@ -31,17 +31,21 @@ POSTS_DIR = ROOT / "posts"
 TEMPLATES_DIR = ROOT / "templates"
 STATIC_DIR = ROOT / "static"
 
-# Build output: public/ is the deploy root. The blog mounts under /blog/.
-# build.py owns ONLY public/blog/ — never delete or write outside it.
+# Build output: public/ is the deploy root for the blog subdomain.
+# Everything under public/ is build output — no hand-authored files live there.
 PUBLIC_DIR = ROOT / "public"
-OUTPUT_DIR = PUBLIC_DIR / "blog"
-BLOG_BASE = "/blog"
+OUTPUT_DIR = PUBLIC_DIR
+BLOG_BASE = ""  # blog lives at the root of its subdomain; no URL prefix
 
 # Canonical site origin — used for canonical URLs, OpenGraph, and JSON-LD.
 # Change here if the blog moves to a different host.
-SITE_URL = "https://www.dssmove.co.uk"
+SITE_URL = "https://blog.dssmove.co.uk"
 SITE_NAME = "DSS Move blog"
 PUBLISHER_NAME = "DSS Move"
+
+# Calculator URL — hosted on the main site, not on this subdomain.
+# Used by the calculator banner in base.html / post.html templates.
+CALCULATOR_URL = "https://www.dssmove.co.uk/calculator/"
 
 # Frontmatter schema -----------------------------------------------------------
 REQUIRED_SCALAR = ("title", "date", "slug", "summary", "callout", "official_link")
@@ -705,6 +709,7 @@ def write_site(posts):
             "tags": render_tags(post.meta.get("tags", [])),
             "official_link": _esc(post.meta.get("official_link", "")),
             "base": BLOG_BASE,
+            "calculator_url": CALCULATOR_URL,
             "faq_jsonld": render_faq_jsonld(post.meta.get("faq", [])),
             "article_jsonld": render_article_jsonld(post, canonical_url, logo_url),
         })
@@ -714,6 +719,7 @@ def write_site(posts):
             "content": inner,
             "site_title": SITE_NAME,
             "base": BLOG_BASE,
+            "calculator_url": CALCULATOR_URL,
             "canonical_url": _esc(canonical_url),
             "og_type": "article",
             "og_image": _esc(logo_url),
@@ -739,6 +745,7 @@ def write_site(posts):
         "content": inner,
         "site_title": SITE_NAME,
         "base": BLOG_BASE,
+        "calculator_url": CALCULATOR_URL,
         "canonical_url": _esc(f"{SITE_URL}{BLOG_BASE}/"),
         "og_type": "website",
         "og_image": _esc(logo_url),

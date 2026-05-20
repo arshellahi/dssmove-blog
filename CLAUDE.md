@@ -15,8 +15,10 @@ The repo is **private**. Anything published here may eventually be made public, 
 - Posts live as Markdown with YAML-ish frontmatter in `posts/`.
 - Templates in `templates/` (`base.html`, `post.html`, `index.html`) use `{{ name }}` placeholders.
 - Static assets in `static/`.
-- Build output lands in `public/blog/` (git-ignored). `public/` is the deploy root and may contain other files (e.g. the main dssmove.com site); the build script owns ONLY `public/blog/` and never touches the rest.
-- The blog mounts under the `/blog/` URL path. All in-blog links use that prefix (`/blog/`, `/blog/<slug>/`, `/blog/static/style.css`).
+- Build output lands in `public/` (git-ignored, the whole directory). `public/` IS the deploy root for the blog subdomain — everything inside is build output.
+- **Deployment target:** `blog.dssmove.co.uk` (subdomain). The blog lives at the root of its subdomain — no URL prefix. Internal links use `/`, `/<slug>/`, `/static/style.css`.
+- **Calculator URL** is on the main site at `https://www.dssmove.co.uk/calculator/`. The blog banner links there with an absolute URL. The calculator file does NOT live in this repo.
+- Three constants in `scripts/build.py` control all URL generation: `SITE_URL`, `BLOG_BASE`, `CALCULATOR_URL`. Change one and the rebuild retargets every canonical, OG tag, JSON-LD `@id`, internal link, and banner href.
 
 ## Commands
 
@@ -26,7 +28,7 @@ The repo is **private**. Anything published here may eventually be made public, 
 | Validate + check external URLs | `python3 scripts/build.py --check --check-external` |
 | Build the site | `python3 scripts/build.py` |
 | Clean build | `python3 scripts/build.py --clean` |
-| Preview locally | `cd public && python3 -m http.server 8080` then open `http://localhost:8080/blog/` |
+| Preview locally | `cd public && python3 -m http.server 8080` then open `http://localhost:8080/` |
 
 `--check` validates: required folders/templates exist; every post has full frontmatter; lists are within size bounds; FAQ items are `question?|answer`; `official_link` is https + recognised host suffix (`gov.uk`, `parliament.uk`, `citizensadvice.org.uk`, `shelter.org.uk`, `turn2us.org.uk`, `housingombudsman.org.uk`, `ons.gov.uk`); body word count is 300–550; no `<img>` / `![]()` has an empty alt; internal links resolve to a real post or static asset; slugs are unique. It does **not** hit the network unless you pass `--check-external` (which also HEADs the `official_link`).
 
@@ -70,7 +72,7 @@ The repo is **private**. Anything published here may eventually be made public, 
 4. Body is Markdown. Supported: ATX headings (`#` through `######`), paragraphs, `**bold**`, `*italic*`, `` `inline code` ``, fenced code blocks (```` ``` ````), unordered lists (`- item`), ordered lists (`1. item`), links `[text](url)`, images `![alt](url)`, horizontal rules (`---`).
 5. **Every image must have non-empty alt text.**
 6. **Internal links** (paths starting with `/`) must point to a slug that exists in `posts/` or a file in `static/`.
-7. Run `--check`, then `build`, then preview: `cd public && python3 -m http.server 8080` and open `http://localhost:8080/blog/<slug>/`.
+7. Run `--check`, then `build`, then preview: `cd public && python3 -m http.server 8080` and open `http://localhost:8080/<slug>/`.
 
 ## Calculator-banner placement rule
 
