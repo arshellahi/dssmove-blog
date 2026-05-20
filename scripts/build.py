@@ -590,6 +590,29 @@ def render_tags(items) -> str:
     return " ".join(f'<span class="tag">{_esc(t)}</span>' for t in items)
 
 
+CTA_HTML = (
+    '<a class="cta-button" href="https://app.dssmove.co.uk/" rel="noopener">'
+    'Search for your next property on Dssmove &rarr;'
+    '</a>'
+)
+
+
+def insert_cta_at_midpoint(body_html: str, cta_html: str = CTA_HTML) -> str:
+    """Insert the CTA before the middle <h2> in body_html.
+
+    Splits on '<h2>'; if the body has fewer than 2 h2 sections (very short
+    post), appends the CTA to the end instead of mid-injecting.
+    """
+    parts = body_html.split('<h2>')
+    n_h2 = len(parts) - 1
+    if n_h2 < 2:
+        return body_html + '\n' + cta_html
+    k = (n_h2 + 1) // 2  # split after k-th h2 section (rounds up for odd N)
+    before = '<h2>'.join(parts[:k + 1])
+    after = '<h2>'.join(parts[k + 1:])
+    return before + '\n' + cta_html + '\n<h2>' + after
+
+
 def render_template(tpl: str, ctx: dict) -> str:
     return PLACEHOLDER_RE.sub(lambda m: ctx.get(m.group(1), ""), tpl)
 
@@ -610,7 +633,7 @@ def write_site(posts):
             "title": _esc(post.title),
             "date": _esc(post.date),
             "summary": _esc(post.summary),
-            "body": post.body_html,
+            "body": insert_cta_at_midpoint(post.body_html),
             "slug": _esc(post.slug),
             "key_points": render_key_points(post.meta.get("key_points", [])),
             "callout": render_callout(post.meta.get("callout", "")),
