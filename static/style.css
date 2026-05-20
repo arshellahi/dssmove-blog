@@ -40,6 +40,47 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* --- Top banner (full-width, brand green, dark text) ----------------- */
+
+.top-banner {
+  display: block;
+  background: var(--brand-green);
+  color: var(--ink);
+  text-decoration: none;
+  text-align: center;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid var(--brand-green-dark);
+}
+.top-banner:hover { background: var(--brand-green-dark); color: var(--ink); }
+.top-banner:focus-visible {
+  outline: 3px solid var(--brand-purple);
+  outline-offset: -3px;
+}
+
+.top-banner-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.top-banner strong { font-weight: 700; }
+.top-banner-sep { opacity: 0.6; }
+.top-banner-arrow {
+  font-weight: 700;
+  margin-left: 0.25rem;
+  transition: transform 0.15s ease;
+}
+.top-banner:hover .top-banner-arrow { transform: translateX(3px); }
+
+@media (max-width: 480px) {
+  .top-banner { font-size: 0.88rem; padding: 0.65rem 0.85rem; }
+  .top-banner-sep { display: none; }  /* save space on phones */
+}
+
 main, .site-header, .site-footer {
   max-width: var(--max);
   margin: 0 auto;
