@@ -1,5 +1,6 @@
-# Build output
-site/
+# Build output — build.py writes to public/blog/ only.
+# Anything else under public/ (e.g. a main dssmove.com site) you commit yourself.
+public/blog/
 
 # Secrets — never commit
 .env

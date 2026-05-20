@@ -29,7 +29,12 @@ ROOT = Path(__file__).resolve().parent.parent
 POSTS_DIR = ROOT / "posts"
 TEMPLATES_DIR = ROOT / "templates"
 STATIC_DIR = ROOT / "static"
-SITE_DIR = ROOT / "site"
+
+# Build output: public/ is the deploy root. The blog mounts under /blog/.
+# build.py owns ONLY public/blog/ — never delete or write outside it.
+PUBLIC_DIR = ROOT / "public"
+OUTPUT_DIR = PUBLIC_DIR / "blog"
+BLOG_BASE = "/blog"
 
 # Frontmatter schema -----------------------------------------------------------
 REQUIRED_SCALAR = ("title", "date", "slug", "summary", "callout", "official_link")
@@ -590,9 +595,9 @@ def render_template(tpl: str, ctx: dict) -> str:
 
 
 def write_site(posts):
-    if SITE_DIR.exists():
-        shutil.rmtree(SITE_DIR)
-    SITE_DIR.mkdir(parents=True)
+    if OUTPUT_DIR.exists():
+        shutil.rmtree(OUTPUT_DIR)
+    OUTPUT_DIR.mkdir(parents=True)
 
     base = (TEMPLATES_DIR / "base.html").read_text(encoding="utf-8")
     post_tpl = (TEMPLATES_DIR / "post.html").read_text(encoding="utf-8")
@@ -612,37 +617,41 @@ def write_site(posts):
             "faq": render_faq(post.meta.get("faq", [])),
             "tags": render_tags(post.meta.get("tags", [])),
             "official_link": _esc(post.meta.get("official_link", "")),
+            "base": BLOG_BASE,
         })
         page = render_template(base, {
             "page_title": _esc(f"{post.title} — DSS Move blog"),
             "summary": _esc(post.summary),
             "content": inner,
             "site_title": "DSS Move blog",
+            "base": BLOG_BASE,
         })
-        out_dir = SITE_DIR / post.slug
+        out_dir = OUTPUT_DIR / post.slug
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "index.html").write_text(page, encoding="utf-8")
 
     items_html = "\n".join(
         f'  <li><time datetime="{_esc(p.date)}">{_esc(p.date)}</time> '
-        f'<a href="/{_esc(p.slug)}/">{_esc(p.title)}</a> — '
+        f'<a href="{_esc(BLOG_BASE)}/{_esc(p.slug)}/">{_esc(p.title)}</a> — '
         f'{_esc(p.summary)}</li>'
         for p in sorted_posts
     )
     inner = render_template(index_tpl, {
         "items": items_html,
         "site_title": "DSS Move blog",
+        "base": BLOG_BASE,
     })
     page = render_template(base, {
         "page_title": "DSS Move blog",
         "summary": "Notes on the UC / Housing Benefit rental market.",
         "content": inner,
         "site_title": "DSS Move blog",
+        "base": BLOG_BASE,
     })
-    (SITE_DIR / "index.html").write_text(page, encoding="utf-8")
+    (OUTPUT_DIR / "index.html").write_text(page, encoding="utf-8")
 
     if STATIC_DIR.is_dir():
-        dest = SITE_DIR / "static"
+        dest = OUTPUT_DIR / "static"
         shutil.copytree(STATIC_DIR, dest)
 
 
@@ -685,18 +694,18 @@ def run_checks(check_external: bool) -> int:
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="DSS Move blog builder")
     parser.add_argument("--check", action="store_true",
-                        help="validate only; do not write site/")
+                        help="validate only; do not write public/blog/")
     parser.add_argument("--check-external", action="store_true",
                         help="with --check, also HEAD external URLs (networked, slow)")
     parser.add_argument("--clean", action="store_true",
-                        help="remove site/ before building")
+                        help="remove public/blog/ before building")
     args = parser.parse_args(argv)
 
     if args.check:
         return run_checks(args.check_external)
 
-    if args.clean and SITE_DIR.exists():
-        shutil.rmtree(SITE_DIR)
+    if args.clean and OUTPUT_DIR.exists():
+        shutil.rmtree(OUTPUT_DIR)
 
     rc = run_checks(check_external=False)
     if rc != 0:
@@ -705,7 +714,7 @@ def main(argv=None) -> int:
 
     posts, _ = discover_posts()
     write_site(posts)
-    print(f"Built {len(posts)} post(s) into {SITE_DIR.relative_to(ROOT)}/")
+    print(f"Built {len(posts)} post(s) into {OUTPUT_DIR.relative_to(ROOT)}/")
     return 0
 
 
