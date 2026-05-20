@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import json
 import re
 import shutil
 import sys
@@ -35,6 +36,12 @@ STATIC_DIR = ROOT / "static"
 PUBLIC_DIR = ROOT / "public"
 OUTPUT_DIR = PUBLIC_DIR / "blog"
 BLOG_BASE = "/blog"
+
+# Canonical site origin — used for canonical URLs, OpenGraph, and JSON-LD.
+# Change here if the blog moves to a different host.
+SITE_URL = "https://www.dssmove.co.uk"
+SITE_NAME = "DSS Move blog"
+PUBLISHER_NAME = "DSS Move"
 
 # Frontmatter schema -----------------------------------------------------------
 REQUIRED_SCALAR = ("title", "date", "slug", "summary", "callout", "official_link")
@@ -590,6 +597,60 @@ def render_tags(items) -> str:
     return " ".join(f'<span class="tag">{_esc(t)}</span>' for t in items)
 
 
+def _safe_jsonld(data: dict) -> str:
+    """Serialize a dict as JSON-LD inside a <script> tag.
+
+    Escapes '</' so the closing-script-tag sequence cannot appear inside
+    the JSON body and break the HTML parser.
+    """
+    payload = json.dumps(data, indent=2, ensure_ascii=False).replace("</", "<\\/")
+    return f'<script type="application/ld+json">\n{payload}\n</script>'
+
+
+def render_faq_jsonld(items) -> str:
+    """Build schema.org FAQPage JSON-LD from the post's faq frontmatter list."""
+    entities = []
+    for item in items:
+        q, _, a = item.partition("|")
+        entities.append({
+            "@type": "Question",
+            "name": q.strip(),
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": a.strip(),
+            },
+        })
+    return _safe_jsonld({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": entities,
+    })
+
+
+def render_article_jsonld(post, canonical_url: str, logo_url: str) -> str:
+    """Build schema.org BlogPosting JSON-LD for a post."""
+    data = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": post.title,
+        "description": post.summary,
+        "datePublished": post.date,
+        "dateModified": post.date,
+        "author": {"@type": "Organization", "name": PUBLISHER_NAME},
+        "publisher": {
+            "@type": "Organization",
+            "name": PUBLISHER_NAME,
+            "logo": {"@type": "ImageObject", "url": logo_url},
+        },
+        "mainEntityOfPage": {"@type": "WebPage", "@id": canonical_url},
+        "url": canonical_url,
+    }
+    keywords = post.meta.get("keywords")
+    if isinstance(keywords, list) and keywords:
+        data["keywords"] = ", ".join(keywords)
+    return _safe_jsonld(data)
+
+
 CTA_HTML = (
     '<a class="cta-button" href="https://app.dssmove.co.uk/" rel="noopener">'
     'Search for your next property on Dssmove &rarr;'
@@ -628,7 +689,10 @@ def write_site(posts):
 
     sorted_posts = sorted(posts, key=lambda p: p.date, reverse=True)
 
+    logo_url = f"{SITE_URL}{BLOG_BASE}/static/logo.jpg"
+
     for post in sorted_posts:
+        canonical_url = f"{SITE_URL}{BLOG_BASE}/{post.slug}/"
         inner = render_template(post_tpl, {
             "title": _esc(post.title),
             "date": _esc(post.date),
@@ -641,13 +705,18 @@ def write_site(posts):
             "tags": render_tags(post.meta.get("tags", [])),
             "official_link": _esc(post.meta.get("official_link", "")),
             "base": BLOG_BASE,
+            "faq_jsonld": render_faq_jsonld(post.meta.get("faq", [])),
+            "article_jsonld": render_article_jsonld(post, canonical_url, logo_url),
         })
         page = render_template(base, {
-            "page_title": _esc(f"{post.title} — DSS Move blog"),
+            "page_title": _esc(f"{post.title} — {SITE_NAME}"),
             "summary": _esc(post.summary),
             "content": inner,
-            "site_title": "DSS Move blog",
+            "site_title": SITE_NAME,
             "base": BLOG_BASE,
+            "canonical_url": _esc(canonical_url),
+            "og_type": "article",
+            "og_image": _esc(logo_url),
         })
         out_dir = OUTPUT_DIR / post.slug
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -661,15 +730,18 @@ def write_site(posts):
     )
     inner = render_template(index_tpl, {
         "items": items_html,
-        "site_title": "DSS Move blog",
+        "site_title": SITE_NAME,
         "base": BLOG_BASE,
     })
     page = render_template(base, {
-        "page_title": "DSS Move blog",
+        "page_title": SITE_NAME,
         "summary": "Notes on the UC / Housing Benefit rental market.",
         "content": inner,
-        "site_title": "DSS Move blog",
+        "site_title": SITE_NAME,
         "base": BLOG_BASE,
+        "canonical_url": _esc(f"{SITE_URL}{BLOG_BASE}/"),
+        "og_type": "website",
+        "og_image": _esc(logo_url),
     })
     (OUTPUT_DIR / "index.html").write_text(page, encoding="utf-8")
 
