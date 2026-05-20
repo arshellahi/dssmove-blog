@@ -293,10 +293,39 @@ img { max-width: 100%; height: auto; }
 }
 .official-link a { color: var(--brand-purple); }
 
+/* --- CTA button ------------------------------------------------------ */
+
+.cta-button {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: var(--brand-purple);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 1rem 1.5rem;
+  margin: 2.5rem 0 0;
+  border-radius: var(--radius);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+.cta-button:hover {
+  background: var(--brand-purple-dark);
+  color: #ffffff;
+  text-decoration: none;
+}
+.cta-button:active { transform: translateY(1px); }
+.cta-button:focus-visible {
+  outline: 3px solid var(--brand-green);
+  outline-offset: 2px;
+}
+
 /* --- Article wrapping ----------------------------------------------- */
 
 .post > header h1 { margin-top: 0; }
-.post > footer { margin-top: 2.5rem; }
+.post > footer { margin-top: 2rem; }
 .post > footer a {
   display: inline-block;
   padding: 0.5rem 0;
