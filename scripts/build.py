@@ -47,6 +47,10 @@ PUBLISHER_NAME = "DSSmove"
 # Used by the calculator banner in base.html / post.html templates.
 CALCULATOR_URL = "https://www.dssmove.co.uk/calculator/"
 
+# GitHub Pages custom-domain CNAME. Written into public/CNAME on every build.
+# Pages reads this file to know the site's custom hostname.
+CNAME_HOST = "blog.dssmove.co.uk"
+
 # Frontmatter schema -----------------------------------------------------------
 REQUIRED_SCALAR = ("title", "date", "slug", "summary", "callout", "official_link")
 REQUIRED_LIST = {
@@ -686,6 +690,9 @@ def write_site(posts):
     if OUTPUT_DIR.exists():
         shutil.rmtree(OUTPUT_DIR)
     OUTPUT_DIR.mkdir(parents=True)
+
+    # CNAME file for GitHub Pages custom-domain serving.
+    (OUTPUT_DIR / "CNAME").write_text(CNAME_HOST + "\n", encoding="utf-8")
 
     base = (TEMPLATES_DIR / "base.html").read_text(encoding="utf-8")
     post_tpl = (TEMPLATES_DIR / "post.html").read_text(encoding="utf-8")
