@@ -9,13 +9,16 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="site-title" href="{{ base }}/">{{ site_title }}</a>
+    <a class="site-brand" href="{{ base }}/" aria-label="DSS Move blog — home">
+      <img class="site-logo" src="{{ base }}/static/logo.jpg" alt="DSS Move" width="166" height="60">
+      <p class="site-slogan">Properties that say YES to DSS</p>
+    </a>
   </header>
   <main>
 {{ content }}
   </main>
   <footer class="site-footer">
-    <p>&copy; DSS Move Limited. Built with a small Python script.</p>
+    <p>&copy; DSS Move Limited. <a href="https://app.dssmove.co.uk">Search the directory &rarr;</a></p>
   </footer>
 </body>
 </html>
