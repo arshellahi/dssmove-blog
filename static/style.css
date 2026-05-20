@@ -51,20 +51,23 @@ body {
 .top-banner {
   display: block;
   background: var(--brand-green);
-  color: var(--ink);
+  color: #ffffff;
   text-decoration: none;
   text-align: center;
-  padding: 0.85rem 1rem;
-  font-size: 0.95rem;
-  font-weight: 500;
+  padding: 1.1rem 1.25rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   border-radius: var(--radius);
   transition: background 0.15s ease;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);  /* a touch of depth so white reads cleanly on green */
 }
-.top-banner:hover { background: var(--brand-green-dark); color: var(--ink); }
+.top-banner:hover { background: var(--brand-green-dark); color: #ffffff; }
 .top-banner:focus-visible {
   outline: 3px solid var(--brand-purple);
   outline-offset: 2px;
 }
+.top-banner strong { font-weight: 800; }
 
 .top-banner-inner {
   display: inline-flex;
@@ -84,7 +87,7 @@ body {
 
 @media (max-width: 480px) {
   .top-banner-wrap { padding: 1rem 1rem 0; }
-  .top-banner { font-size: 0.88rem; padding: 0.65rem 0.85rem; }
+  .top-banner { font-size: 1rem; padding: 0.85rem 1rem; }
   .top-banner-sep { display: none; }  /* save space on phones */
 }
 
