@@ -1,0 +1,33 @@
+name: build-check
+
+# Runs scripts/build.py --check on every PR + push to main + manually.
+# Gates merges so a broken post can never land on main.
+# Does NOT deploy — deployment is wired separately when the blog goes live.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: validate + smoke build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate (frontmatter, links, image alts, slugs, word count)
+        run: python3 scripts/build.py --check
+
+      - name: Smoke build
+        # Catches template render errors that --check alone cannot
+        # (e.g. unresolved {{ placeholders }} or missing template files).
+        run: python3 scripts/build.py
