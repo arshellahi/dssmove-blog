@@ -1,0 +1,57 @@
+name: deploy
+
+# Deploys the built site to GitHub Pages on every push to main.
+# Pages source must be set to "GitHub Actions" in Settings → Pages → Build and deployment.
+# Custom domain (blog.dssmove.co.uk) is set via public/CNAME, written by scripts/build.py.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deploy; don't cancel an in-progress one — we want each push to actually publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build site
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate (frontmatter, links, alts, slugs, word count)
+        run: python3 scripts/build.py --check
+
+      - name: Build
+        run: python3 scripts/build.py
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    name: publish to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,22 +1,99 @@
+/* DSSmove blog — visual style pulled from app.dssmove.co.uk.
+   Exact palette as used on the live app: purple #792182 for the dss
+   mark and links, green #9ec53b as the YES accent, warm brown-grey
+   #68605c for body text (gives the friendly, approachable feel). */
+
 :root {
-  --ink: #1a1a1a;
-  --paper: #fdfdfb;
-  --muted: #666;
-  --accent: #c0392b;
-  --rule: #e5e5e0;
-  --max: 38rem;
+  --ink: #2d2d2d;            /* headings — crisp emphasis */
+  --ink-soft: #68605c;       /* body text — matches site exactly */
+  --muted: #9a9a9a;          /* meta / secondary — matches site */
+  --paper: #ffffff;
+  --paper-soft: #f6f6f6;
+  --paper-tint: #f0f5f5;     /* matches site gradient stops */
+  --brand-purple: #792182;   /* dss-mark + link colour */
+  --brand-purple-dark: #5e1968;
+  --brand-green: #9ec53b;    /* YES-green accent */
+  --brand-green-dark: #7e9d2f;
+  --brand-green-pale: #eef5d8;
+  --callout-bg: #fff8e6;
+  --callout-border: #f0d985;
+  --rule: #e5e5e5;
+  --max: 42rem;
+  --radius: 6px;
 }
 
 * { box-sizing: border-box; }
 
+html { -webkit-text-size-adjust: 100%; }
+
 body {
   margin: 0;
   padding: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 18px;
-  line-height: 1.6;
-  color: var(--ink);
+  /* system-ui matches what app.dssmove.co.uk uses (Chakra default). */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+               Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink-soft);    /* warm brown-grey body — matches site */
   background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Top banner (card-width, brand green, dark text) ---------------- */
+
+.top-banner-wrap {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 0;
+}
+
+.top-banner {
+  display: block;
+  background: var(--brand-green);
+  color: #ffffff;
+  text-decoration: none;
+  text-align: center;
+  padding: 1.1rem 1.25rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border-radius: var(--radius);
+  transition: background 0.15s ease;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);  /* a touch of depth so white reads cleanly on green */
+}
+.top-banner:hover { background: var(--brand-green-dark); color: #ffffff; }
+.top-banner:focus-visible {
+  outline: 3px solid var(--brand-purple);
+  outline-offset: 2px;
+}
+.top-banner strong { font-weight: 800; }
+
+/* Inline variant: same visual, used INSIDE main (no wrap needed).
+   Adds vertical breathing room so it sits naturally between content
+   sections (e.g. between the callout and the FAQ on a post page). */
+.top-banner--inline { margin: 2.5rem 0; }
+
+.top-banner-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.top-banner strong { font-weight: 700; }
+.top-banner-sep { opacity: 0.6; }
+.top-banner-arrow {
+  font-weight: 700;
+  margin-left: 0.25rem;
+  transition: transform 0.15s ease;
+}
+.top-banner:hover .top-banner-arrow { transform: translateX(3px); }
+
+@media (max-width: 480px) {
+  .top-banner-wrap { padding: 1rem 1rem 0; }
+  .top-banner { font-size: 1rem; padding: 0.85rem 1rem; }
+  .top-banner-sep { display: none; }  /* save space on phones */
 }
 
 main, .site-header, .site-footer {
@@ -25,19 +102,39 @@ main, .site-header, .site-footer {
   padding: 0 1.25rem;
 }
 
+/* --- Site header / brand block --------------------------------------- */
+
 .site-header {
-  padding-top: 2rem;
+  padding-top: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--rule);
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
+  text-align: left;
 }
 
-.site-title {
-  font-weight: bold;
-  color: var(--ink);
+.site-brand {
+  display: inline-block;
   text-decoration: none;
-  letter-spacing: 0.02em;
+  color: inherit;
 }
+.site-brand:hover { text-decoration: none; }
+
+.site-logo {
+  display: block;
+  height: 60px;
+  width: auto;
+  max-width: 100%;
+}
+
+.site-slogan {
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+  color: var(--brand-purple);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* --- Footer ---------------------------------------------------------- */
 
 .site-footer {
   margin-top: 4rem;
@@ -47,53 +144,94 @@ main, .site-header, .site-footer {
   color: var(--muted);
   font-size: 0.875rem;
 }
+.site-footer a { color: var(--brand-purple); }
+.site-footer a:hover { color: var(--brand-purple-dark); }
 
-a { color: var(--accent); }
-a:hover { text-decoration: underline; }
+/* --- Links + headings ------------------------------------------------ */
+
+a {
+  color: var(--brand-purple);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+a:hover { color: var(--brand-purple-dark); text-decoration-thickness: 2px; }
 
 h1, h2, h3, h4, h5, h6 {
   line-height: 1.25;
-  margin-top: 2rem;
-  margin-bottom: 0.5rem;
+  margin-top: 2.25rem;
+  margin-bottom: 0.6rem;
+  color: var(--ink);
+  font-weight: 700;
 }
+h1 { font-size: 1.9rem; letter-spacing: -0.01em; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
 
-h1 { font-size: 1.75rem; }
-h2 { font-size: 1.375rem; }
-h3 { font-size: 1.125rem; }
+p { margin: 1rem 0; }
 
 .meta {
   color: var(--muted);
   font-size: 0.9rem;
-  margin-top: -0.5rem;
+  margin-top: -0.25rem;
+  margin-bottom: 0.5rem;
 }
 
-p { margin: 1rem 0; }
+strong { font-weight: 700; color: var(--ink); }
+
+/* --- Index post list ------------------------------------------------- */
+
+.index .lede {
+  font-size: 1.1rem;
+  color: var(--ink-soft);
+  margin-bottom: 2rem;
+}
+
+ul.post-list { list-style: none; padding: 0; margin: 0; }
+ul.post-list li {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--paper-soft);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--brand-green);
+  transition: background 0.15s ease;
+}
+ul.post-list li:hover { background: var(--brand-green-pale); }
+ul.post-list time {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+ul.post-list a {
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-decoration: none;
+}
+ul.post-list a:hover { text-decoration: underline; }
+
+/* --- Post body ------------------------------------------------------- */
+
+.post-body p { margin: 1rem 0; }
+.post-body ul, .post-body ol { margin: 1rem 0; padding-left: 1.5rem; }
+.post-body li { margin: 0.4rem 0; }
 
 pre {
-  background: #f3f1ec;
+  background: var(--paper-soft);
   padding: 1rem;
   overflow-x: auto;
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-size: 0.9rem;
+  line-height: 1.5;
 }
-
 code {
   font-family: ui-monospace, Menlo, Consolas, monospace;
-  background: #f3f1ec;
-  padding: 0.1rem 0.3rem;
+  background: var(--paper-soft);
+  padding: 0.1rem 0.35rem;
   border-radius: 3px;
+  font-size: 0.9em;
 }
-
 pre code { background: none; padding: 0; }
-
-ul.post-list { list-style: none; padding: 0; }
-ul.post-list li { margin: 0.75rem 0; }
-ul.post-list time {
-  display: inline-block;
-  width: 6rem;
-  color: var(--muted);
-  font-size: 0.875rem;
-}
 
 hr {
   border: none;
@@ -103,64 +241,162 @@ hr {
 
 img { max-width: 100%; height: auto; }
 
-.tags { font-size: 0.85rem; color: var(--muted); margin: 0.25rem 0 1rem; }
+/* --- Tags ------------------------------------------------------------ */
+
+.tags { font-size: 0.85rem; color: var(--muted); margin: 0.5rem 0 1.5rem; }
 .tag {
   display: inline-block;
-  padding: 0.1rem 0.5rem;
-  margin-right: 0.25rem;
-  background: #ebe7df;
+  padding: 0.15rem 0.6rem;
+  margin-right: 0.3rem;
+  background: var(--brand-green-pale);
+  color: var(--brand-green-dark);
   border-radius: 999px;
-  font-size: 0.8rem;
-  color: #4a4a4a;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
+/* --- Key points box -------------------------------------------------- */
+
 .key-points {
-  background: #f6f3ec;
-  border-left: 3px solid var(--accent);
-  padding: 0.75rem 1.25rem;
-  margin: 1.5rem 0;
-  border-radius: 0 4px 4px 0;
+  background: var(--paper-soft);
+  border-left: 4px solid var(--brand-green);
+  padding: 1rem 1.25rem;
+  margin: 2rem 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
 }
 .key-points h2 {
   margin-top: 0;
-  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted);
+  letter-spacing: 0.08em;
+  color: var(--brand-green-dark);
+  font-weight: 700;
 }
-.key-points ul { margin: 0.5rem 0 0; padding-left: 1.25rem; }
-.key-points li { margin: 0.25rem 0; }
+.key-points ul { margin: 0; padding-left: 1.25rem; }
+.key-points li { margin: 0.3rem 0; }
+
+/* --- Callout aside --------------------------------------------------- */
 
 .callout {
-  background: #fff8e6;
-  border: 1px solid #f0d985;
+  background: var(--callout-bg);
+  border: 1px solid var(--callout-border);
   padding: 1rem 1.25rem;
-  margin: 2rem 0;
-  border-radius: 4px;
-  font-style: italic;
+  margin: 2.5rem 0;
+  border-radius: var(--radius);
+  font-size: 0.97rem;
+  color: var(--ink-soft);
 }
 .callout p { margin: 0; }
+.callout::before {
+  content: "Heads up";
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.4rem;
+}
 
-.faq { margin: 2rem 0; }
-.faq h2 { font-size: 1.125rem; }
+/* --- FAQ ------------------------------------------------------------- */
+
+.faq { margin: 2.5rem 0; }
+.faq h2 {
+  font-size: 1.2rem;
+  color: var(--brand-purple);
+}
 .faq details {
   border-bottom: 1px solid var(--rule);
-  padding: 0.75rem 0;
+  padding: 0.85rem 0;
 }
+.faq details:first-of-type { border-top: 1px solid var(--rule); }
 .faq summary {
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  color: var(--ink);
   list-style: none;
+  padding-right: 1.5rem;
+  position: relative;
 }
-.faq summary::before { content: "▸ "; color: var(--accent); }
-.faq details[open] summary::before { content: "▾ "; }
-.faq details p { margin: 0.5rem 0 0 1rem; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "+";
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: var(--brand-green-dark);
+  font-weight: 400;
+  font-size: 1.25rem;
+  transition: transform 0.15s ease;
+}
+.faq details[open] summary::after { content: "−"; }
+.faq details p {
+  margin: 0.5rem 0 0;
+  color: var(--ink-soft);
+}
+
+/* --- Official source link ------------------------------------------- */
 
 .official-link {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--muted);
-  margin-top: 2rem;
-  padding-top: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
   border-top: 1px solid var(--rule);
-  word-break: break-all;
+  word-break: break-word;
+}
+.official-link a { color: var(--brand-purple); }
+
+/* --- CTA button ------------------------------------------------------ */
+
+.cta-button {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: var(--brand-purple);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 1rem 1.5rem;
+  margin: 2.5rem 0;
+  border-radius: var(--radius);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+.cta-button:hover {
+  background: var(--brand-purple-dark);
+  color: #ffffff;
+  text-decoration: none;
+}
+.cta-button:active { transform: translateY(1px); }
+.cta-button:focus-visible {
+  outline: 3px solid var(--brand-green);
+  outline-offset: 2px;
+}
+
+/* --- Article wrapping ----------------------------------------------- */
+
+.post > header h1 { margin-top: 0; }
+.post > footer { margin-top: 2rem; }
+.post > footer a {
+  display: inline-block;
+  padding: 0.5rem 0;
+  font-weight: 600;
+  text-decoration: none;
+}
+.post > footer a:hover { text-decoration: underline; }
+
+/* --- Small screens --------------------------------------------------- */
+
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+  main, .site-header, .site-footer { padding: 0 1rem; }
+  h1 { font-size: 1.55rem; }
+  h2 { font-size: 1.2rem; }
+  .site-header { padding-top: 1.5rem; }
+  ul.post-list li { padding: 0.85rem 1rem; }
 }

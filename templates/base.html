@@ -5,17 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ page_title }}</title>
   <meta name="description" content="{{ summary }}">
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="canonical" href="{{ canonical_url }}">
+  <meta property="og:title" content="{{ page_title }}">
+  <meta property="og:description" content="{{ summary }}">
+  <meta property="og:type" content="{{ og_type }}">
+  <meta property="og:url" content="{{ canonical_url }}">
+  <meta property="og:image" content="{{ og_image }}">
+  <meta property="og:site_name" content="{{ site_title }}">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{ page_title }}">
+  <meta name="twitter:description" content="{{ summary }}">
+  <meta name="twitter:image" content="{{ og_image }}">
+  <link rel="stylesheet" href="{{ base }}/static/style.css">
 </head>
 <body>
+  <div class="top-banner-wrap">
+    <a class="top-banner" href="{{ calculator_url }}">
+      <span class="top-banner-inner">
+        <strong>Check what you can claim</strong>
+        <span class="top-banner-sep">—</span>
+        <span>Benefits Calculator</span>
+        <span class="top-banner-arrow" aria-hidden="true">&rarr;</span>
+      </span>
+    </a>
+  </div>
   <header class="site-header">
-    <a class="site-title" href="/">{{ site_title }}</a>
+    <a class="site-brand" href="{{ base }}/" aria-label="DSSmove blog — home">
+      <img class="site-logo" src="{{ base }}/static/logo.jpg" alt="DSSmove" width="166" height="60">
+      <p class="site-slogan">Properties that say YES to DSS</p>
+    </a>
   </header>
   <main>
 {{ content }}
   </main>
   <footer class="site-footer">
-    <p>&copy; DSS Move Limited. Built with a small Python script.</p>
+    <p>&copy; DSSmove Limited. <a href="https://app.dssmove.co.uk">Search the directory &rarr;</a></p>
   </footer>
 </body>
 </html>

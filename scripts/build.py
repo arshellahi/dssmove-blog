@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""DSS Move blog static site builder.
+"""DSSmove blog static site builder.
 
 Usage:
     python3 scripts/build.py              # build site/ from posts, templates, static
@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import json
 import re
 import shutil
 import sys
@@ -29,7 +30,26 @@ ROOT = Path(__file__).resolve().parent.parent
 POSTS_DIR = ROOT / "posts"
 TEMPLATES_DIR = ROOT / "templates"
 STATIC_DIR = ROOT / "static"
-SITE_DIR = ROOT / "site"
+
+# Build output: public/ is the deploy root for the blog subdomain.
+# Everything under public/ is build output — no hand-authored files live there.
+PUBLIC_DIR = ROOT / "public"
+OUTPUT_DIR = PUBLIC_DIR
+BLOG_BASE = ""  # blog lives at the root of its subdomain; no URL prefix
+
+# Canonical site origin — used for canonical URLs, OpenGraph, and JSON-LD.
+# Change here if the blog moves to a different host.
+SITE_URL = "https://blog.dssmove.co.uk"
+SITE_NAME = "DSSmove blog"
+PUBLISHER_NAME = "DSSmove"
+
+# Calculator URL — hosted on the main site, not on this subdomain.
+# Used by the calculator banner in base.html / post.html templates.
+CALCULATOR_URL = "https://www.dssmove.co.uk/calculator/"
+
+# GitHub Pages custom-domain CNAME. Written into public/CNAME on every build.
+# Pages reads this file to know the site's custom hostname.
+CNAME_HOST = "blog.dssmove.co.uk"
 
 # Frontmatter schema -----------------------------------------------------------
 REQUIRED_SCALAR = ("title", "date", "slug", "summary", "callout", "official_link")
@@ -585,14 +605,94 @@ def render_tags(items) -> str:
     return " ".join(f'<span class="tag">{_esc(t)}</span>' for t in items)
 
 
+def _safe_jsonld(data: dict) -> str:
+    """Serialize a dict as JSON-LD inside a <script> tag.
+
+    Escapes '</' so the closing-script-tag sequence cannot appear inside
+    the JSON body and break the HTML parser.
+    """
+    payload = json.dumps(data, indent=2, ensure_ascii=False).replace("</", "<\\/")
+    return f'<script type="application/ld+json">\n{payload}\n</script>'
+
+
+def render_faq_jsonld(items) -> str:
+    """Build schema.org FAQPage JSON-LD from the post's faq frontmatter list."""
+    entities = []
+    for item in items:
+        q, _, a = item.partition("|")
+        entities.append({
+            "@type": "Question",
+            "name": q.strip(),
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": a.strip(),
+            },
+        })
+    return _safe_jsonld({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": entities,
+    })
+
+
+def render_article_jsonld(post, canonical_url: str, logo_url: str) -> str:
+    """Build schema.org BlogPosting JSON-LD for a post."""
+    data = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": post.title,
+        "description": post.summary,
+        "datePublished": post.date,
+        "dateModified": post.date,
+        "author": {"@type": "Organization", "name": PUBLISHER_NAME},
+        "publisher": {
+            "@type": "Organization",
+            "name": PUBLISHER_NAME,
+            "logo": {"@type": "ImageObject", "url": logo_url},
+        },
+        "mainEntityOfPage": {"@type": "WebPage", "@id": canonical_url},
+        "url": canonical_url,
+    }
+    keywords = post.meta.get("keywords")
+    if isinstance(keywords, list) and keywords:
+        data["keywords"] = ", ".join(keywords)
+    return _safe_jsonld(data)
+
+
+CTA_HTML = (
+    '<a class="cta-button" href="https://app.dssmove.co.uk/" rel="noopener">'
+    'Search for your next property on DSSmove &rarr;'
+    '</a>'
+)
+
+
+def insert_cta_at_midpoint(body_html: str, cta_html: str = CTA_HTML) -> str:
+    """Insert the CTA before the middle <h2> in body_html.
+
+    Splits on '<h2>'; if the body has fewer than 2 h2 sections (very short
+    post), appends the CTA to the end instead of mid-injecting.
+    """
+    parts = body_html.split('<h2>')
+    n_h2 = len(parts) - 1
+    if n_h2 < 2:
+        return body_html + '\n' + cta_html
+    k = (n_h2 + 1) // 2  # split after k-th h2 section (rounds up for odd N)
+    before = '<h2>'.join(parts[:k + 1])
+    after = '<h2>'.join(parts[k + 1:])
+    return before + '\n' + cta_html + '\n<h2>' + after
+
+
 def render_template(tpl: str, ctx: dict) -> str:
     return PLACEHOLDER_RE.sub(lambda m: ctx.get(m.group(1), ""), tpl)
 
 
 def write_site(posts):
-    if SITE_DIR.exists():
-        shutil.rmtree(SITE_DIR)
-    SITE_DIR.mkdir(parents=True)
+    if OUTPUT_DIR.exists():
+        shutil.rmtree(OUTPUT_DIR)
+    OUTPUT_DIR.mkdir(parents=True)
+
+    # CNAME file for GitHub Pages custom-domain serving.
+    (OUTPUT_DIR / "CNAME").write_text(CNAME_HOST + "\n", encoding="utf-8")
 
     base = (TEMPLATES_DIR / "base.html").read_text(encoding="utf-8")
     post_tpl = (TEMPLATES_DIR / "post.html").read_text(encoding="utf-8")
@@ -600,49 +700,67 @@ def write_site(posts):
 
     sorted_posts = sorted(posts, key=lambda p: p.date, reverse=True)
 
+    logo_url = f"{SITE_URL}{BLOG_BASE}/static/logo.jpg"
+
     for post in sorted_posts:
+        canonical_url = f"{SITE_URL}{BLOG_BASE}/{post.slug}/"
         inner = render_template(post_tpl, {
             "title": _esc(post.title),
             "date": _esc(post.date),
             "summary": _esc(post.summary),
-            "body": post.body_html,
+            "body": insert_cta_at_midpoint(post.body_html),
             "slug": _esc(post.slug),
             "key_points": render_key_points(post.meta.get("key_points", [])),
             "callout": render_callout(post.meta.get("callout", "")),
             "faq": render_faq(post.meta.get("faq", [])),
             "tags": render_tags(post.meta.get("tags", [])),
             "official_link": _esc(post.meta.get("official_link", "")),
+            "base": BLOG_BASE,
+            "calculator_url": CALCULATOR_URL,
+            "faq_jsonld": render_faq_jsonld(post.meta.get("faq", [])),
+            "article_jsonld": render_article_jsonld(post, canonical_url, logo_url),
         })
         page = render_template(base, {
-            "page_title": _esc(f"{post.title} — DSS Move blog"),
+            "page_title": _esc(f"{post.title} — {SITE_NAME}"),
             "summary": _esc(post.summary),
             "content": inner,
-            "site_title": "DSS Move blog",
+            "site_title": SITE_NAME,
+            "base": BLOG_BASE,
+            "calculator_url": CALCULATOR_URL,
+            "canonical_url": _esc(canonical_url),
+            "og_type": "article",
+            "og_image": _esc(logo_url),
         })
-        out_dir = SITE_DIR / post.slug
+        out_dir = OUTPUT_DIR / post.slug
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "index.html").write_text(page, encoding="utf-8")
 
     items_html = "\n".join(
         f'  <li><time datetime="{_esc(p.date)}">{_esc(p.date)}</time> '
-        f'<a href="/{_esc(p.slug)}/">{_esc(p.title)}</a> — '
+        f'<a href="{_esc(BLOG_BASE)}/{_esc(p.slug)}/">{_esc(p.title)}</a> — '
         f'{_esc(p.summary)}</li>'
         for p in sorted_posts
     )
     inner = render_template(index_tpl, {
         "items": items_html,
-        "site_title": "DSS Move blog",
+        "site_title": SITE_NAME,
+        "base": BLOG_BASE,
     })
     page = render_template(base, {
-        "page_title": "DSS Move blog",
+        "page_title": SITE_NAME,
         "summary": "Notes on the UC / Housing Benefit rental market.",
         "content": inner,
-        "site_title": "DSS Move blog",
+        "site_title": SITE_NAME,
+        "base": BLOG_BASE,
+        "calculator_url": CALCULATOR_URL,
+        "canonical_url": _esc(f"{SITE_URL}{BLOG_BASE}/"),
+        "og_type": "website",
+        "og_image": _esc(logo_url),
     })
-    (SITE_DIR / "index.html").write_text(page, encoding="utf-8")
+    (OUTPUT_DIR / "index.html").write_text(page, encoding="utf-8")
 
     if STATIC_DIR.is_dir():
-        dest = SITE_DIR / "static"
+        dest = OUTPUT_DIR / "static"
         shutil.copytree(STATIC_DIR, dest)
 
 
@@ -683,20 +801,20 @@ def run_checks(check_external: bool) -> int:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="DSS Move blog builder")
+    parser = argparse.ArgumentParser(description="DSSmove blog builder")
     parser.add_argument("--check", action="store_true",
-                        help="validate only; do not write site/")
+                        help="validate only; do not write public/blog/")
     parser.add_argument("--check-external", action="store_true",
                         help="with --check, also HEAD external URLs (networked, slow)")
     parser.add_argument("--clean", action="store_true",
-                        help="remove site/ before building")
+                        help="remove public/blog/ before building")
     args = parser.parse_args(argv)
 
     if args.check:
         return run_checks(args.check_external)
 
-    if args.clean and SITE_DIR.exists():
-        shutil.rmtree(SITE_DIR)
+    if args.clean and OUTPUT_DIR.exists():
+        shutil.rmtree(OUTPUT_DIR)
 
     rc = run_checks(check_external=False)
     if rc != 0:
@@ -705,7 +823,7 @@ def main(argv=None) -> int:
 
     posts, _ = discover_posts()
     write_site(posts)
-    print(f"Built {len(posts)} post(s) into {SITE_DIR.relative_to(ROOT)}/")
+    print(f"Built {len(posts)} post(s) into {OUTPUT_DIR.relative_to(ROOT)}/")
     return 0
 
 

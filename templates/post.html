@@ -20,6 +20,15 @@
 {{ callout }}
   </aside>
 
+  <a class="top-banner top-banner--inline" href="{{ calculator_url }}">
+    <span class="top-banner-inner">
+      <strong>Check what you can claim</strong>
+      <span class="top-banner-sep">—</span>
+      <span>Benefits Calculator</span>
+      <span class="top-banner-arrow" aria-hidden="true">&rarr;</span>
+    </span>
+  </a>
+
   <section class="faq">
     <h2>Frequently asked questions</h2>
 {{ faq }}
@@ -30,6 +39,9 @@
   </p>
 
   <footer>
-    <p><a href="/">&larr; Back to all posts</a></p>
+    <p><a href="{{ base }}/">&larr; Back to all posts</a></p>
   </footer>
+
+{{ article_jsonld }}
+{{ faq_jsonld }}
 </article>
