@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benefits & LHA Calculator — Dssmove</title>
+<meta name="description" content="Free UK benefits calculator. Find out what you could claim + see DSS-friendly homes you can afford. Built by Dssmove.">
+<meta name="theme-color" content="#792182">
+<!-- Content Security Policy: lock down what scripts and network calls this page can make -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline';
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: https://s3-eu-west-1.amazonaws.com https://s3.eu-west-1.amazonaws.com https://*.dssmove.co.uk https://*.execute-api.eu-west-1.amazonaws.com;
+  connect-src 'self' https://api.postcodes.io https://staged-api.dssmove.co.uk https://api.dssmove.co.uk;
+  frame-ancestors 'self' https://*.dssmove.co.uk https://dssmove.co.uk;
+  base-uri 'self';
+  form-action 'none';
+">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple: #792182;
+  --purple-dark: #5c1864;
+  --purple-light: #f5ebf6;
+  --lime: #9ec53b;
+  --lime-dark: #7e9d2f;
+  --lime-light: #f3f8e3;
+  --text: #1f1d24;
+  --text-muted: #68605c;
+  --text-soft: #9a9a9a;
+  --bg: #ffffff;
+  --bg-soft: #faf8fc;
+  --border: #e5e1e8;
+  --success: #2f855a;
+  --warn: #d97706;
+  --danger: #c53030;
+  --shadow-sm: 0 1px 2px rgba(28,15,33,.05);
+  --shadow-md: 0 4px 12px rgba(121,33,130,.08);
+  --shadow-lg: 0 12px 32px rgba(121,33,130,.12);
+  --radius: 12px;
+  --radius-lg: 20px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--text);background:var(--bg-soft);line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* ═══ Header ═══ */
+.site-header{background:white;padding:14px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+.logo-icon{width:32px;height:32px;background:var(--purple);border-radius:6px;display:flex;align-items:center;justify-content:center;position:relative}
+.logo-icon::before{content:'';position:absolute;top:4px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:7px solid white}
+.logo-icon::after{content:'';position:absolute;top:11px;left:50%;transform:translateX(-50%);width:16px;height:18px;background:white;border-radius:1px}
+.logo-icon span{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:4px;height:10px;background:var(--purple);border-radius:1px;z-index:1}
+.logo-icon span::before{content:'';position:absolute;top:0;left:-1px;width:6px;height:5px;background:var(--purple);border-radius:50%}
+.logo-text{font-size:22px;font-weight:800;letter-spacing:-0.5px;line-height:1}
+.logo-text .dss{color:var(--purple);display:block}
+.logo-text .move{color:var(--lime-dark)}
+.tagline-small{color:var(--text-muted);font-size:13px;display:none}
+@media (min-width:768px){.tagline-small{display:block}.tagline-small b{color:var(--purple)}.tagline-small em{color:var(--lime-dark);font-style:normal;font-weight:700}}
+.nav-tabs{background:#fafafa;border-bottom:1px solid var(--border)}
+.nav-tabs-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto}
+.nav-tab{padding:12px 20px;color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:500;white-space:nowrap;border-right:1px solid var(--border)}
+.nav-tab.active{background:var(--purple);color:white;font-weight:600}
+.nav-tab:hover:not(.active){background:white;color:var(--purple)}
+
+/* ═══ Main grid ═══ */
+.container{max-width:1200px;margin:0 auto;padding:24px}
+.grid{display:grid;grid-template-columns:1fr;gap:24px}
+@media (min-width:1000px){.grid{grid-template-columns:1fr 340px}}
+
+/* ═══ Main panel ═══ */
+.panel{background:white;border-radius:var(--radius-lg);padding:32px;box-shadow:var(--shadow-md);border:1px solid var(--border)}
+.panel-head{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.panel-head h1{font-size:28px;font-weight:800;color:var(--purple);margin-bottom:8px;letter-spacing:-0.02em}
+.panel-head p{color:var(--text-muted);font-size:15px}
+
+/* ═══ Persona chips ═══ */
+.persona-row{margin-bottom:24px}
+.persona-row h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:10px}
+.persona-chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:white;border:1.5px solid var(--border);border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--text-muted)}
+.chip:hover{border-color:var(--purple);color:var(--purple);background:var(--purple-light)}
+.chip.active{background:var(--purple);color:white;border-color:var(--purple)}
+.chip-emoji{font-size:14px}
+
+/* ═══ Wizard steps ═══ */
+.steps{display:flex;justify-content:space-between;margin-bottom:32px;position:relative;padding:0 14px}
+.steps::before{content:'';position:absolute;top:14px;left:14px;right:14px;height:2px;background:var(--border);z-index:0}
+.steps::after{content:'';position:absolute;top:14px;left:14px;height:2px;background:var(--lime);z-index:1;width:var(--progress,0%);transition:width .4s}
+.step{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;position:relative;z-index:2;cursor:pointer}
+.step-num{width:30px;height:30px;border-radius:50%;background:white;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--text-muted);transition:all .2s}
+.step.active .step-num{background:var(--purple);color:white;border-color:var(--purple);box-shadow:0 0 0 4px var(--purple-light)}
+.step.done .step-num{background:var(--lime);color:white;border-color:var(--lime)}
+.step.done .step-num::before{content:'✓'}
+.step.done .step-num span{display:none}
+.step-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px;text-align:center}
+.step.active .step-label{color:var(--purple)}
+@media (max-width:640px){.step-label{display:none}}
+
+/* ═══ Form steps ═══ */
+.step-content{display:none;animation:slide .3s ease}
+.step-content.active{display:block}
+@keyframes slide{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.step-content h2{font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px}
+.step-content p.lead{color:var(--text-muted);font-size:14px;margin-bottom:20px}
+
+.field-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.field{display:flex;flex-direction:column}
+.field label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.field .help{font-size:11px;color:var(--text-soft);margin-top:4px;line-height:1.3}
+.field input[type="number"],.field input[type="text"],.field select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:inherit;background:white;transition:all .2s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-light)}
+.field input.error,.field select.error{border-color:var(--danger)}
+.toggle-group{display:flex;gap:6px}
+.toggle-btn{flex:1;padding:11px 12px;border:1.5px solid var(--border);background:white;border-radius:10px;font-family:inherit;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .15s}
+.toggle-btn:hover{border-color:var(--purple)}
+.toggle-btn.active{background:var(--purple);color:white;border-color:var(--purple)}
+
+/* ═══ Step nav ═══ */
+.step-nav{display:flex;justify-content:space-between;margin-top:28px;padding-top:24px;border-top:1px solid var(--border);gap:12px}
+.btn{padding:12px 24px;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--lime);color:var(--purple)}
+.btn-primary:hover{background:var(--lime-dark);color:white;transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn-secondary{background:transparent;color:var(--text-muted);border:1.5px solid var(--border)}
+.btn-secondary:hover{border-color:var(--purple);color:var(--purple)}
+.btn-purple{background:var(--purple);color:white}
+.btn-purple:hover{background:var(--purple-dark);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+
+/* ═══ Results ═══ */
+.results-hero{background:linear-gradient(135deg,var(--purple) 0%,var(--purple-dark) 100%);color:white;border-radius:var(--radius-lg);padding:40px 32px;text-align:center;margin-bottom:24px}
+.results-hero .label{font-size:13px;opacity:0.85;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.results-hero .total{font-size:64px;font-weight:800;letter-spacing:-0.03em;line-height:1;margin-bottom:12px}
+.results-hero .total .pence{font-size:0.45em;opacity:0.75}
+.results-hero .period{font-size:18px;opacity:0.9;margin-bottom:24px}
+.results-hero .periods{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.2);padding-top:24px;margin-top:8px}
+.results-hero .periods .item{text-align:center}
+.results-hero .periods .num{font-size:24px;font-weight:700;color:var(--lime)}
+.results-hero .periods .lbl{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;opacity:0.85}
+
+.results-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:32px}
+.results-actions .btn{flex:1;min-width:160px;justify-content:center;text-align:center}
+
+.benefit-cat{margin-bottom:24px}
+.benefit-cat-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-weight:700;font-size:15px}
+.benefit-cat-head .badge{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 8px;border-radius:12px;font-size:12px;font-weight:700;color:white}
+.benefit-cat.likely .badge{background:var(--lime-dark)}
+.benefit-cat.check .badge{background:var(--warn)}
+
+.bcard{display:flex;align-items:center;gap:14px;padding:14px 18px;background:white;border:1.5px solid var(--border);border-radius:var(--radius);margin-bottom:8px;transition:all .15s}
+.bcard:hover{box-shadow:var(--shadow-sm);transform:translateX(2px)}
+.bcard.auto{border-left:4px solid var(--lime-dark);background:var(--lime-light)}
+.bcard.check{border-left:4px solid var(--warn);background:#fff7ed}
+.bcard .ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;color:white}
+.bcard.auto .ico{background:var(--lime-dark)}
+.bcard.check .ico{background:var(--warn)}
+.bcard .body{flex:1;min-width:0}
+.bcard .ttl{font-weight:700;font-size:14px;color:var(--text)}
+.bcard .why{font-size:12px;color:var(--text-muted);margin-top:1px}
+.bcard .apply{font-size:11px;color:var(--purple);font-weight:600;margin-top:3px;text-decoration:none;display:inline-block}
+.bcard .apply:hover{text-decoration:underline}
+.bcard .amt{text-align:right;flex-shrink:0}
+.bcard .amt .n{font-size:17px;font-weight:800}
+.bcard .amt .p{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px;margin-top:1px}
+
+/* ═══ Adjustments callout ═══ */
+.adj-box{background:#fef3c7;border-left:4px solid var(--warn);border-radius:var(--radius);padding:16px 20px;margin:16px 0}
+.adj-box .ti{font-weight:700;font-size:14px;color:var(--warn);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.adj-box .ln{display:flex;justify-content:space-between;font-size:13px;padding:3px 0}
+
+/* ═══ Property CTA ═══ */
+.prop-cta{background:linear-gradient(135deg,var(--lime) 0%,var(--lime-dark) 100%);border-radius:var(--radius-lg);padding:32px;color:white;margin-top:32px;text-align:center}
+.prop-cta h3{font-size:22px;font-weight:800;margin-bottom:8px}
+.prop-cta p{margin-bottom:18px;opacity:0.95}
+.prop-cta .budget-pill{display:inline-block;background:rgba(255,255,255,.2);padding:6px 14px;border-radius:24px;font-weight:700;margin:0 4px}
+.prop-cta .btn{background:white;color:var(--purple)}
+.prop-cta .btn:hover{background:var(--purple);color:white}
+
+/* ═══ Sidebar ═══ */
+.sidebar{display:flex;flex-direction:column;gap:20px}
+.search-box{background:var(--purple);color:white;border-radius:var(--radius-lg);padding:24px}
+.search-box h3{font-size:18px;font-weight:700;margin-bottom:14px}
+.search-box .row{display:flex;gap:8px;margin-bottom:8px}
+.search-box input{flex:1;padding:11px 14px;border:none;border-radius:10px;font-family:inherit;font-size:14px}
+.search-box .btn{background:var(--lime);color:var(--purple);padding:11px 20px}
+.search-box .btn:hover{background:white}
+.search-box a.adv{display:block;color:white;font-size:12px;margin-top:8px;text-decoration:underline;opacity:0.9}
+
+/* ═══════ Affordability section ═══════ */
+.afford-section{background:white;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);padding:32px;margin-top:32px;border:2px solid var(--lime);position:relative;overflow:hidden}
+.afford-section::before{content:"";position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--purple) 0%,var(--lime) 100%)}
+.afford-section h2{font-size:26px;font-weight:800;color:var(--purple);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.afford-section .sub{color:var(--text-muted);margin-bottom:22px;font-size:14px;line-height:1.5}
+.afford-controls{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px;padding:20px;background:#faf7fb;border-radius:12px;border:1px solid #e9d5f0}
+.afford-control label{display:block;font-weight:700;color:var(--text);font-size:11px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.6px}
+.afford-control input[type=range]{width:100%;accent-color:var(--purple);height:6px;margin-top:6px}
+.afford-control input[type=range]::-webkit-slider-thumb{background:var(--purple)}
+.afford-control .val{font-size:26px;font-weight:800;color:var(--purple);font-variant-numeric:tabular-nums;margin-top:4px}
+.afford-control select,.afford-control input[type=text]{width:100%;padding:10px 12px;font-size:14px;border:1px solid #d1d5db;border-radius:8px;font-family:inherit;background:white}
+.afford-control .src{font-size:11px;color:var(--text-muted);margin-top:6px;font-style:italic}
+.afford-table{width:100%;border-collapse:collapse;margin-top:4px;background:white}
+.afford-table tr{border-bottom:1px solid #f1f1f1}
+.afford-table tr:last-child{border-bottom:none}
+.afford-table td{padding:11px 12px;font-size:14px;vertical-align:middle}
+.afford-table td.lbl{color:var(--text);font-weight:500}
+.afford-table td.amt{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.afford-table td.out{color:var(--danger)}
+.afford-table td.in{color:#16a34a}
+.afford-table td.note{font-size:11px;color:var(--text-muted);font-weight:400;padding-left:24px}
+.afford-table tr.group-head td{background:linear-gradient(90deg,#f3e8ff 0%,#faf5ff 100%);color:var(--purple);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:0.6px;padding:10px 12px}
+.afford-table tr.subline td{padding:6px 12px 6px 28px;font-size:12px;color:var(--text-muted);font-weight:500;border-bottom:none}
+.afford-table tr.subline td.amt{font-weight:600}
+.afford-table tr.subtotal td{background:#fafafa;font-weight:700;padding-top:14px;padding-bottom:14px;font-size:14px}
+.afford-table tr.shortfall td{background:#fef2f2;font-weight:700;color:var(--danger);font-size:13px;padding:9px 12px}
+.afford-table tr.shortfall td.note{font-style:italic;color:#b91c1c;font-weight:500}
+.afford-table tr.net td{background:#1f2937;color:white;font-size:18px;font-weight:800;padding:18px 12px}
+.afford-table tr.net td.amt{font-size:24px;color:white}
+.afford-table tr.net td.amt.deficit{color:#fca5a5}
+.afford-table tr.net td.amt.surplus{color:#86efac}
+.verdict{margin-top:22px;padding:20px;border-radius:12px;display:flex;align-items:flex-start;gap:14px;border:2px solid}
+.verdict.good{background:#dcfce7;color:#14532d;border-color:#86efac}
+.verdict.tight{background:#fef3c7;color:#78350f;border-color:#fcd34d}
+.verdict.bad{background:#fee2e2;color:#7f1d1d;border-color:#fca5a5}
+.verdict .ico{font-size:32px;line-height:1}
+.verdict .body{flex:1}
+.verdict .body .h{font-size:17px;font-weight:800;margin-bottom:4px}
+.verdict .body .d{font-size:13px;font-weight:500;line-height:1.5}
+.afford-actions{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+.afford-actions .btn{flex:1;min-width:180px}
+.afford-actions .btn.primary{background:var(--lime);color:var(--purple);font-weight:800}
+.afford-actions .btn.primary:hover{background:#7e9d2f;color:white}
+.afford-source{font-size:11px;color:var(--text-muted);font-style:italic;margin-top:18px;line-height:1.6;padding:12px;background:#fafafa;border-radius:8px}
+.help-tip{display:inline-block;width:14px;height:14px;background:#9ca3af;color:white;border-radius:50%;text-align:center;font-size:10px;line-height:14px;margin-left:4px;cursor:help;font-weight:700;vertical-align:1px}
+.la-detected{font-size:11px;color:var(--purple);font-weight:700;margin-top:6px;text-transform:none;letter-spacing:0}
+@media (max-width:768px){.afford-controls{grid-template-columns:1fr}.afford-section{padding:22px 18px}.afford-table td{padding:9px 8px;font-size:13px}}
+
+/* ═══════ Property results module ═══════ */
+.props-section{background:white;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);padding:32px;margin-top:32px;position:relative;overflow:hidden}
+.props-section::before{content:"";position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--lime) 0%,var(--purple) 100%)}
+.props-section h2{font-size:26px;font-weight:800;color:var(--purple);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.props-section .sub{color:var(--text-muted);margin-bottom:22px;font-size:14px;line-height:1.5}
+.props-filters{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:18px;padding:18px;background:#faf7fb;border-radius:12px;border:1px solid #e9d5f0;align-items:end}
+.props-filters .pf{display:flex;flex-direction:column;gap:6px}
+.props-filters label{font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.5px}
+.props-filters input,.props-filters select{padding:9px 10px;font-size:13px;border:1px solid #d1d5db;border-radius:8px;font-family:inherit;background:white;width:100%}
+.props-filters .pf.actions{align-self:end}
+.props-filters .btn-search-props{background:var(--lime);color:var(--purple);font-weight:800;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;width:100%;transition:background 0.15s}
+.props-filters .btn-search-props:hover{background:#7e9d2f;color:white}
+.props-filters .btn-search-props:disabled{background:#e5e7eb;color:#9ca3af;cursor:wait}
+.props-loading{text-align:center;padding:40px 20px;color:var(--text-muted)}
+.props-loading .spinner{display:inline-block;width:28px;height:28px;border:3px solid #e9d5f0;border-top-color:var(--purple);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.props-summary{font-size:13px;color:var(--text-muted);margin-bottom:14px;padding:10px 14px;background:#fafafa;border-radius:8px;border-left:3px solid var(--purple)}
+.props-summary strong{color:var(--text)}
+.props-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.pcard{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:white;display:flex;flex-direction:column;transition:transform 0.15s, box-shadow 0.15s}
+.pcard:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(121,33,130,0.12)}
+.pcard .img{width:100%;height:170px;background:#f3f4f6 center/cover no-repeat;position:relative}
+.pcard .img-placeholder{display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#9ca3af;font-size:42px;background:linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%)}
+.pcard .badge{position:absolute;top:10px;left:10px;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;backdrop-filter:blur(8px)}
+.pcard .badge.good{background:rgba(34,197,94,0.92);color:white}
+.pcard .badge.tight{background:rgba(234,179,8,0.92);color:white}
+.pcard .badge.over{background:rgba(220,38,38,0.92);color:white}
+.pcard .body{padding:14px 16px;display:flex;flex-direction:column;flex:1;gap:6px}
+.pcard .price{font-size:22px;font-weight:800;color:var(--purple);font-variant-numeric:tabular-nums;line-height:1}
+.pcard .price .per{font-size:12px;color:var(--text-muted);font-weight:500}
+.pcard .ttl{font-size:14px;font-weight:700;color:var(--text);line-height:1.3;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pcard .addr{font-size:12px;color:var(--text-muted);line-height:1.4}
+.pcard .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pcard .chip-tag{font-size:11px;color:var(--purple);background:var(--purple-soft);padding:3px 9px;border-radius:10px;font-weight:600}
+.pcard .breakdown{margin-top:10px;padding-top:10px;border-top:1px dashed #e5e7eb;font-size:11px;color:var(--text-muted);line-height:1.5}
+.pcard .breakdown strong{color:var(--text);font-weight:700}
+.pcard .breakdown .row{display:flex;justify-content:space-between;margin-top:2px}
+.pcard .actions{display:flex;gap:8px;margin-top:auto;padding-top:12px}
+.pcard .actions a{flex:1;text-align:center;padding:8px 10px;font-size:12px;font-weight:700;border-radius:7px;text-decoration:none;transition:background 0.15s}
+.pcard .actions a.view{background:var(--purple);color:white}
+.pcard .actions a.view:hover{background:#5f1768}
+.pcard .actions a.run{background:#f3f4f6;color:var(--text);border:1px solid #e5e7eb}
+.pcard .actions a.run:hover{background:#e5e7eb}
+.props-empty{padding:40px 20px;text-align:center;color:var(--text-muted);background:#fafafa;border-radius:10px;border:2px dashed #e5e7eb}
+.props-empty .emoji{font-size:42px;margin-bottom:10px}
+.props-empty .h{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+.props-error{padding:18px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;color:#991b1b;font-size:13px}
+.props-more{margin-top:16px;text-align:center}
+.props-more button{background:white;border:2px solid var(--purple);color:var(--purple);padding:10px 28px;font-weight:700;border-radius:8px;cursor:pointer;font-family:inherit;font-size:14px}
+.props-more button:hover{background:var(--purple);color:white}
+
+/* ═══════ Disclaimers ═══════ */
+.disclaimer-banner{background:linear-gradient(90deg,#fef3c7 0%,#fde68a 100%);border:1px solid #f59e0b;border-radius:10px;padding:14px 18px;margin-top:24px;font-size:12px;line-height:1.6;color:#78350f}
+.disclaimer-banner strong{color:#451a03;font-weight:800}
+.disclaimer-banner .ico{font-size:18px;margin-right:6px;vertical-align:-3px}
+.disclaimer-full{background:#fafafa;border:1px solid #e5e7eb;border-radius:10px;padding:18px 22px;margin-top:24px;font-size:12px;line-height:1.7;color:var(--text-muted)}
+.disclaimer-full h4{font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px;letter-spacing:0.3px;text-transform:uppercase}
+.disclaimer-full ul{margin:0 0 0 18px;padding:0}
+.disclaimer-full li{margin-bottom:4px}
+.disclaimer-full strong{color:var(--text)}
+@media (max-width:768px){.props-filters{grid-template-columns:1fr 1fr}.props-section{padding:22px 18px}.props-grid{grid-template-columns:1fr}}
+
+.history-box{background:white;border-radius:var(--radius-lg);padding:20px;border:1px solid var(--border)}
+.history-box h3{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:12px}
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--border);cursor:pointer;font-size:13px}
+.history-item:hover{color:var(--purple)}
+.history-item .when{color:var(--text-soft);font-size:11px}
+.history-item .amt{font-weight:700;color:var(--purple)}
+.history-empty{font-size:13px;color:var(--text-soft);font-style:italic;padding:8px 0}
+
+.summary-box{background:white;border-radius:var(--radius-lg);padding:20px;border:1px solid var(--border)}
+.summary-box h3{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:12px}
+.summary-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0}
+.summary-row .l{color:var(--text-muted)}
+.summary-row .v{font-weight:600}
+.summary-row.tot{border-top:1px solid var(--border);padding-top:10px;margin-top:6px;font-size:15px}
+.summary-row.tot .l,.summary-row.tot .v{color:var(--purple);font-weight:700}
+
+/* ═══ Print ═══ */
+@media print{
+  .site-header,.nav-tabs,.sidebar,.step-nav,.results-actions,.persona-row,.steps{display:none}
+  body{background:white}
+  .panel{box-shadow:none;border:none;padding:0}
+  .step-content{display:block!important}
+  .results-hero{break-inside:avoid}
+  .bcard{break-inside:avoid}
+}
+
+/* ═══ Toast ═══ */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--purple);color:white;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);transition:transform .3s;z-index:1000}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- ═══ Header ═══ -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="https://app.dssmove.co.uk" class="logo-link">
+      <span class="logo-icon"><span></span></span>
+      <span class="logo-text"><span class="dss">dss</span><span class="move">move</span></span>
+    </a>
+    <div class="tagline-small">Properties that say <em>YES</em> to <b>DSS</b></div>
+  </div>
+</header>
+<nav class="nav-tabs">
+  <div class="nav-tabs-inner">
+    <a href="https://app.dssmove.co.uk/" class="nav-tab">Home</a>
+    <a href="https://app.dssmove.co.uk/property-to-rent" class="nav-tab">Property to rent</a>
+    <a href="https://www.dssmove.co.uk/find-an-agent" class="nav-tab">Find an agent</a>
+    <a href="#" class="nav-tab active">Benefits Calculator</a>
+    <a href="https://app.dssmove.co.uk/tenantregister" class="nav-tab">Sign up free</a>
+  </div>
+</nav>
+
+<!-- ═══ Main ═══ -->
+<div class="container">
+<div class="grid">
+
+  <!-- LEFT: Calculator -->
+  <div class="panel">
+
+    <!-- View: Wizard -->
+    <div id="wizard-view">
+      <div class="panel-head">
+        <h1>Find out what you're entitled to</h1>
+        <p>Free · anonymous · 2 minutes. We check 48 UK benefits + apply Local Housing Allowance for your area.</p>
+      </div>
+
+      <!-- Persona quick-start -->
+      <div class="persona-row">
+        <h3>Quick start — pick a typical situation</h3>
+        <div class="persona-chips">
+          <button class="chip" data-persona="single-parent"><span class="chip-emoji">👩‍👧</span>Single parent</button>
+          <button class="chip" data-persona="disabled"><span class="chip-emoji">♿</span>Disabled / sick</button>
+          <button class="chip" data-persona="carer"><span class="chip-emoji">🤝</span>Family carer</button>
+          <button class="chip" data-persona="pensioner"><span class="chip-emoji">👴</span>Pensioner</button>
+          <button class="chip" data-persona="unemployed"><span class="chip-emoji">🔍</span>Job seeking</button>
+          <button class="chip" data-persona="reset"><span class="chip-emoji">↻</span>Reset</button>
+        </div>
+      </div>
+
+      <!-- Step indicators -->
+      <div class="steps" id="steps">
+        <div class="step active" data-step="1"><div class="step-num"><span>1</span></div><div class="step-label">About you</div></div>
+        <div class="step" data-step="2"><div class="step-num"><span>2</span></div><div class="step-label">Family</div></div>
+        <div class="step" data-step="3"><div class="step-num"><span>3</span></div><div class="step-label">Situation</div></div>
+        <div class="step" data-step="4"><div class="step-num"><span>4</span></div><div class="step-label">Home</div></div>
+        <div class="step" data-step="5"><div class="step-num"><span>5</span></div><div class="step-label">Money</div></div>
+      </div>
+
+      <!-- Step 1: About you -->
+      <div class="step-content active" data-step="1">
+        <h2>About you</h2>
+        <p class="lead">Helps us check age-related benefits like State Pension.</p>
+        <div class="field-grid">
+          <div class="field">
+            <label>Your age</label>
+            <input type="number" id="age" value="30" min="16" max="120">
+          </div>
+          <div class="field">
+            <label>Sex</label>
+            <select id="sex">
+              <option value="M">Male</option>
+              <option value="F">Female</option>
+              <option value="O">Other / prefer not to say</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Country</label>
+            <select id="country">
+              <option>England</option>
+              <option>Wales</option>
+              <option>Scotland</option>
+              <option>Northern Ireland</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Household</label>
+            <div class="toggle-group" data-input="adults">
+              <button class="toggle-btn active" data-value="1">Single</button>
+              <button class="toggle-btn" data-value="2">Couple</button>
+            </div>
+            <input type="hidden" id="adults" value="1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Family -->
+      <div class="step-content" data-step="2">
+        <h2>Your family</h2>
+        <p class="lead">For Child Benefit, UC child elements, Healthy Start vouchers.</p>
+        <div class="field-grid">
+          <div class="field">
+            <label>Number of children (under 16)</label>
+            <input type="number" id="children" value="0" min="0" max="10">
+            <span class="help">Drives Child Benefit + UC child element</span>
+          </div>
+          <div class="field">
+            <label>Of which, disabled</label>
+            <input type="number" id="disabled" value="0" min="0" max="10">
+            <span class="help">Drives UC disabled child element + DLA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Situation -->
+      <div class="step-content" data-step="3">
+        <h2>Your situation</h2>
+        <p class="lead">Tick anything that applies — each unlocks additional benefits.</p>
+        <div class="field-grid">
+          <div class="field">
+            <label>Health condition limits work?</label>
+            <div class="toggle-group" data-input="health"><button class="toggle-btn active" data-value="N">No</button><button class="toggle-btn" data-value="Y">Yes</button></div>
+            <input type="hidden" id="health" value="N">
+          </div>
+          <div class="field">
+            <label>Caring 35+ hrs/wk for someone disabled?</label>
+            <div class="toggle-group" data-input="carer"><button class="toggle-btn active" data-value="N">No</button><button class="toggle-btn" data-value="Y">Yes</button></div>
+            <input type="hidden" id="carer" value="N">
+          </div>
+          <div class="field">
+            <label>Pregnant or new baby (&lt;12 mo)?</label>
+            <div class="toggle-group" data-input="pregnant"><button class="toggle-btn active" data-value="N">No</button><button class="toggle-btn" data-value="Y">Yes</button></div>
+            <input type="hidden" id="pregnant" value="N">
+          </div>
+          <div class="field">
+            <label>Bereaved last 18 months?</label>
+            <div class="toggle-group" data-input="bereaved"><button class="toggle-btn active" data-value="N">No</button><button class="toggle-btn" data-value="Y">Yes</button></div>
+            <input type="hidden" id="bereaved" value="N">
+          </div>
+          <div class="field">
+            <label>Veteran with service injury?</label>
+            <div class="toggle-group" data-input="veteran"><button class="toggle-btn active" data-value="N">No</button><button class="toggle-btn" data-value="Y">Yes</button></div>
+            <input type="hidden" id="veteran" value="N">
+          </div>
+          <div class="field">
+            <label>Unemployed seeking work?</label>
+            <div class="toggle-group" data-input="unemployed"><button class="toggle-btn active" data-value="N">No</button><button class="toggle-btn" data-value="Y">Yes</button></div>
+            <input type="hidden" id="unemployed" value="N">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Home -->
+      <div class="step-content" data-step="4">
+        <h2>Your home</h2>
+        <p class="lead">For Housing element — we auto-apply your area's LHA cap.</p>
+        <div class="field-grid">
+          <div class="field">
+            <label>Renting?</label>
+            <div class="toggle-group" data-input="renting"><button class="toggle-btn active" data-value="N">No</button><button class="toggle-btn" data-value="Y">Yes</button></div>
+            <input type="hidden" id="renting" value="N">
+          </div>
+          <div class="field">
+            <label>Postcode (or first part)</label>
+            <input type="text" id="postcode" placeholder="e.g. M1 or SW19" maxlength="8">
+            <span class="help" id="postcode-detected">— auto-detects your LHA area</span>
+          </div>
+          <div class="field">
+            <label>LHA area (auto-set by postcode)</label>
+            <select id="brma"><option value="">— pick yours —</option></select>
+          </div>
+          <div class="field">
+            <label>Monthly rent (£)</label>
+            <input type="number" id="rent" value="0" min="0" step="50">
+            <span class="help">Auto-capped at LHA rate for your area</span>
+          </div>
+          <div class="field">
+            <label>Bedrooms entitled to</label>
+            <select id="bedroom">
+              <option value="SAR">SAR (under-35 single)</option>
+              <option value="1" selected>1 bed</option>
+              <option value="2">2 bed</option>
+              <option value="3">3 bed</option>
+              <option value="4">4 bed</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5: Money -->
+      <div class="step-content" data-step="5">
+        <h2>Your money</h2>
+        <p class="lead">For UC earnings taper, capital test, childcare element.</p>
+        <div class="field-grid">
+          <div class="field">
+            <label>Annual earned income (£)</label>
+            <input type="number" id="earned" value="0" min="0" step="500">
+            <span class="help">Net pay/yr. 55p reduction per £1 over Work Allowance.</span>
+          </div>
+          <div class="field">
+            <label>Savings / capital (£)</label>
+            <input type="number" id="capital" value="0" min="0" step="500">
+            <span class="help">UC blocked &gt;£16k; tapered £6k-£16k</span>
+          </div>
+          <div class="field">
+            <label>Monthly childcare (£)</label>
+            <input type="number" id="childcare" value="0" min="0" step="50">
+            <span class="help">Registered childcare. UC pays 85%.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nav buttons -->
+      <div class="step-nav">
+        <button class="btn btn-secondary" id="btn-back" style="visibility:hidden">← Back</button>
+        <button class="btn btn-primary" id="btn-next">Continue →</button>
+      </div>
+    </div>
+
+    <!-- View: Results -->
+    <div id="results-view" style="display:none">
+      <div class="results-hero">
+        <div class="label">You could claim</div>
+        <div class="total" id="r-total">£0</div>
+        <div class="period">per year</div>
+        <div class="periods">
+          <div class="item"><div class="num" id="r-mo">£0</div><div class="lbl">monthly</div></div>
+          <div class="item"><div class="num" id="r-wk">£0</div><div class="lbl">weekly</div></div>
+          <div class="item"><div class="num" id="r-hh">£0</div><div class="lbl">household total</div></div>
+        </div>
+      </div>
+
+      <div class="results-actions">
+        <button class="btn btn-secondary" id="btn-edit">← Edit answers</button>
+        <button class="btn btn-secondary" id="btn-save">💾 Save calculation</button>
+        <button class="btn btn-secondary" id="btn-share">🔗 Share</button>
+        <button class="btn btn-secondary" id="btn-print">🖨 Print</button>
+      </div>
+
+      <div id="adj-callout"></div>
+
+      <!-- Benefit cards -->
+      <div class="benefit-cat likely">
+        <div class="benefit-cat-head"><span class="badge">✓</span>Definitely entitled / likely</div>
+        <div id="cards-auto"></div>
+      </div>
+      <div class="benefit-cat check">
+        <div class="benefit-cat-head"><span class="badge">?</span>Worth investigating (may need DWP assessment)</div>
+        <div id="cards-check"></div>
+      </div>
+
+      <!-- Affordability module -->
+      <div class="afford-section" id="afford-section">
+        <h2>🏠 What can you really afford?</h2>
+        <p class="sub">Move the slider to a property's rent. We'll show the <strong>full monthly cost of living</strong> in that home — rent, council tax, energy, water, broadband, food — using 2025/26 official rates, so you know if it's truly affordable before you view.</p>
+
+        <div class="afford-controls">
+          <div class="afford-control">
+            <label for="afford-rent">Monthly rent of property</label>
+            <input type="range" id="afford-rent" min="300" max="2500" step="25" value="700">
+            <div class="val" id="afford-rent-v">£700/mo</div>
+          </div>
+          <div class="afford-control">
+            <label for="afford-size">Household size <span class="help-tip" title="Determines energy and food estimates. Based on Ofgem Typical Domestic Consumption Values.">i</span></label>
+            <select id="afford-size">
+              <option value="low">Small &mdash; 1-2 people, flat or small house</option>
+              <option value="medium" selected>Medium &mdash; 2-3 people, 3-bed house</option>
+              <option value="high">Large &mdash; 4-5 people, 4-bed house</option>
+            </select>
+            <div class="src">Source: Ofgem TDCV (low/med/high tiers used by every UK comparison site)</div>
+            <div class="la-detected" id="afford-la"></div>
+          </div>
+        </div>
+
+        <table class="afford-table">
+          <tbody id="afford-tbody"></tbody>
+        </table>
+
+        <div class="verdict" id="afford-verdict"></div>
+
+        <div class="afford-actions">
+          <a class="btn primary" id="btn-afford-search" href="https://app.dssmove.co.uk/property-to-rent" target="_blank">Browse properties at this budget →</a>
+          <button class="btn btn-secondary" id="btn-afford-band">Check exact council tax band on gov.uk ↗</button>
+        </div>
+
+        <div class="afford-source">
+          <strong>Sources:</strong> Council Tax 2025/26 published rates from each local authority &middot; Energy: Ofgem TDCV (Typical Domestic Consumption Values) + Ofgem Energy Price Cap Q2 2025 &middot; Water: Ofwat 2025 company-by-company averages &middot; Broadband: Ofcom social tariff list (BT Home Essentials, Virgin Essentials &mdash; UC claimants qualify) &middot; Food: ONS Family Spending Survey + JRF Minimum Income Standard 2024. <strong>Estimates only</strong> &mdash; your actual bills will vary by usage, supplier, tariff, and council scheme.
+        </div>
+      </div>
+
+      <!-- Property Results Module -->
+      <div class="props-section" id="props-section">
+        <h2>🏘 Available properties matching your budget</h2>
+        <p class="sub">Live listings from <strong>Dssmove</strong>. Pre-filtered to your postcode and your Housing Element budget &mdash; widen the search to see more options.</p>
+
+        <div class="props-filters" id="props-filters">
+          <div class="pf">
+            <label for="pf-location">Location (city/town/postcode)</label>
+            <input type="text" id="pf-location" placeholder="e.g. Manchester or M1 1AA">
+          </div>
+          <div class="pf">
+            <label for="pf-radius">Radius</label>
+            <select id="pf-radius">
+              <option value="">This area only</option>
+              <option value="0.25">¼ mile</option>
+              <option value="0.5">½ mile</option>
+              <option value="1">1 mile</option>
+              <option value="3">3 miles</option>
+              <option value="5" selected>5 miles</option>
+              <option value="10">10 miles</option>
+              <option value="15">15 miles</option>
+              <option value="20">20 miles</option>
+              <option value="30">30 miles</option>
+            </select>
+          </div>
+          <div class="pf">
+            <label for="pf-price-max">Max monthly rent</label>
+            <input type="number" id="pf-price-max" min="100" max="3000" step="50" value="700">
+          </div>
+          <div class="pf">
+            <label for="pf-type">Property type</label>
+            <select id="pf-type">
+              <option value="">Any</option>
+              <option value="houses">Houses</option>
+              <option value="flats-and-bedsits">Flats &amp; rooms</option>
+            </select>
+          </div>
+          <div class="pf">
+            <label for="pf-bed-min">Min bedrooms</label>
+            <select id="pf-bed-min"><option value="">Any</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+          </div>
+          <div class="pf">
+            <label for="pf-bed-max">Max bedrooms</label>
+            <select id="pf-bed-max"><option value="">Any</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+          </div>
+          <div class="pf">
+            <label for="pf-price-min">Min monthly rent</label>
+            <input type="number" id="pf-price-min" min="0" max="3000" step="50" value="0">
+          </div>
+          <div class="pf actions">
+            <label>&nbsp;</label>
+            <button class="btn-search-props" id="btn-props-search">🔎 Search homes</button>
+          </div>
+        </div>
+
+        <div class="props-summary" id="props-summary" style="display:none"></div>
+        <div id="props-output"></div>
+
+        <div class="disclaimer-banner">
+          <span class="ico">⚠️</span><strong>Property match is indicative only.</strong> Properties shown are sourced from the Dssmove database and matched to your <em>housing element budget</em>. Actual affordability depends on your full circumstances (deposit, fees, council tax band of the specific property, condition of the property). Always view a property and check terms with the agent or landlord before committing.
+        </div>
+      </div>
+
+      <!-- Comprehensive disclaimer -->
+      <div class="disclaimer-full" id="disclaimer-full">
+        <h4>Important — please read</h4>
+        <ul>
+          <li><strong>Not financial advice.</strong> This calculator is provided for general information and educational purposes only. It does not constitute, and should not be relied upon as, financial, legal, or benefits advice. For tailored guidance, contact <a href="https://www.citizensadvice.org.uk" target="_blank" rel="noopener">Citizens Advice</a>, <a href="https://www.entitledto.co.uk" target="_blank" rel="noopener">entitledto.co.uk</a>, or a qualified welfare adviser.</li>
+          <li><strong>Benefit estimates are indicative.</strong> Actual Universal Credit and other benefit awards depend on a DWP assessment of your full circumstances. Figures shown use 2025/26 published DWP rates, Local Housing Allowance tables, and the standard taper/cap formulas, but your real award may differ.</li>
+          <li><strong>Council tax estimates &mdash; confirm with your local authority.</strong> The Band A rate shown is the published 2025/26 figure for your detected local authority. The actual property may be in a different band (B&ndash;H). The Council Tax Reduction (CTR) percentage is a national rough guide &mdash; <strong>every council runs its own scheme with different income tapers, capital limits, and exemptions.</strong> <a href="https://www.gov.uk/council-tax-bands" target="_blank" rel="noopener">Check the actual band on gov.uk</a> and contact the council to apply for CTR.</li>
+          <li><strong>Utility estimates use UK averages.</strong> Energy figures are from Ofgem TDCV + Q2 2025 Price Cap; water from Ofwat regional averages; broadband assumes you qualify for the Ofcom social tariff (BT Home Essentials &pound;15/mo). <strong>Your actual bills will vary</strong> by usage, supplier, and tariff. Contact your suppliers (or compare via Ofgem's Energy Compare) for a personal quote.</li>
+          <li><strong>Food estimates use national essentials data</strong> (JRF Minimum Income Standard 2024 + ONS Family Spending). These cover a no-frills weekly shop only.</li>
+          <li><strong>Property listings.</strong> Provided by Dssmove. We do not verify availability, condition, or landlord credentials &mdash; always view in person and conduct your own due diligence.</li>
+          <li><strong>Nothing is stored.</strong> Everything in this calculator runs in your browser. Saved calculations stay in your browser's local storage on your device.</li>
+        </ul>
+      </div>
+
+      <!-- Property CTA (kept as final call-to-action) -->
+      <div class="prop-cta" id="prop-cta">
+        <h3>Browse the full Dssmove property database</h3>
+        <p>You can afford <span class="budget-pill" id="budget-pill">£0</span>/month rent in <span id="budget-area">your area</span>.</p>
+        <a class="btn" id="btn-find-property" href="https://app.dssmove.co.uk/property-to-rent">All properties &mdash; advanced search →</a>
+      </div>
+
+      <div style="background:#f3f4f6;border-radius:12px;padding:16px 20px;margin-top:24px;font-size:12px;color:var(--text-muted);line-height:1.6">
+        <strong>How accurate?</strong> Calculator validated against Citizens Advice + DWP worked examples (UC taper, capital tariff, child element, standard allowance all exact). Uses official DWP 2025/26 rates + LHA. <strong>Estimate only</strong> — actual award depends on DWP assessment and local council schemes. Nothing stored — everything in your browser.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Sidebar -->
+  <aside class="sidebar">
+
+    <!-- Live summary -->
+    <div class="summary-box">
+      <h3>Live calculation</h3>
+      <div class="summary-row"><span class="l">UC entitlement</span><span class="v" id="s-uc">£0</span></div>
+      <div class="summary-row"><span class="l">Other benefits</span><span class="v" id="s-other">£0</span></div>
+      <div class="summary-row" id="s-taper-row" style="display:none"><span class="l" style="color:var(--danger)">UC taper</span><span class="v" id="s-taper" style="color:var(--danger)">£0</span></div>
+      <div class="summary-row" id="s-cap-row" style="display:none"><span class="l" style="color:var(--danger)">Benefit cap</span><span class="v" id="s-cap" style="color:var(--danger)">£0</span></div>
+      <div class="summary-row tot"><span class="l">Total /yr</span><span class="v" id="s-total">£0</span></div>
+    </div>
+
+    <!-- Property search -->
+    <div class="search-box">
+      <h3>Search for a home in:</h3>
+      <div class="row">
+        <input type="text" id="search-loc" placeholder="Type a city, town or postcode">
+      </div>
+      <button class="btn" id="btn-search-prop">Search</button>
+      <a href="https://app.dssmove.co.uk/property-to-rent" class="adv">Switch to advanced search →</a>
+    </div>
+
+    <!-- History -->
+    <div class="history-box">
+      <h3>Previous calculations</h3>
+      <div id="history-list"><div class="history-empty">No saved calculations yet</div></div>
+    </div>
+
+  </aside>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════ LHA DATA (152 BRMAs) ═══════
+const LHA = {"Isle of Wight":[343.27,515,650,815,995],"Sheffield":[350,575,620,680,950],"Kernow West":[392.5,550,695,815,1100],"Plymouth":[400,550,675,800,975],"Weston-S-Mare":[451.33,580,750,925,1250],"Ipswich":[366.5,595,717,800,1100],"Colchester":[401.33,625,795,975,1250],"North Devon":[425,485,645,775,995],"Taunton & West Somerset":[404.11,575,725,850,1000],"Mid & East Devon":[404.11,530,685,825,1100],"Mendip":[405,600,775,975,1350],"Thanet":[380,577.84,750,900,1150],"Canterbury":[425,675,895,1100,1315],"West Cheshire":[375.86,550,675,795,1224],"Wirral":[318.71,425,525,650,825],"Black Country":[320,495,625,750,925],"Birmingham":[341.58,695,750,825,1100],"Solihull":[412.5,700,825,1000,1375],"Southport":[369.35,475,600,775,925],"Wigan":[339.83,400,500,595,775],"Greater Liverpool":[344.36,500,595,650,875],"South Cheshire":[325,475,575,680,995],"Bolton and Bury":[341.51,475,575,700,950],"West Wiltshire":[450,595,725,900,1200],"Bath":[540,815,980,1200,1945],"Bristol":[511.33,900,1095,1300,1850],"Warwickshire South":[412.5,700,850,1045,1350],"Cheltenham":[436.5,625,800,1000,1470],"Reading":[391.5,850,1095,1300,1654],"Newbury":[451.33,750,895,1200,1605],"Fylde Coast":[350.88,400,542,625,742.5],"West Pennine":[310.68,400,450,505,762.5],"Yeovil":[435,525,695,850,1250],"Bournemouth":[426.33,695,875,1150,1550],"Southampton":[425,700,875,1075,1450],"Winchester":[525,825,1050,1275,1700],"Basingstoke":[406.33,780,950,1150,1400],"Salisbury":[426.33,650,780,915,1250],"Swindon":[451.33,675,785,950,1300],"Herefordshire":[351.5,475,600,750,975],"Worcester North":[329.83,515,650,750,995],"Worcester South":[382.58,569,700,825,1150],"Gloucester":[406.33,550,725,850,1200],"Eastern Staffordshire":[321.33,495,600,725,985.8],"Mid Staffs":[352.4,500,625,740,995],"Staffordshire North":[301.33,425,480,595,800],"Coventry":[432.35,575,675,775,1000],"Rugby & East":[425,595,725,850,1200],"East Lancs":[291.5,425,475,595,795],"Central Lancs":[304.17,450,575,650,925],"East Cheshire":[421.5,550,725,995,1750],"Southern Greater Manchester":[411.58,625,750,900,1400],"Central Greater Manchester":[411.58,775,875,950,1350],"St Helens":[324.75,425,525,625,800],"Northumberland":[356.33,375,425,530,760],"Tyneside":[381.33,490,550,650,925],"Sunderland":[321.33,425,475,550,700],"Durham":[393.25,393.25,400,475,659.87],"Darlington":[288.96,360,450,530,695],"Richmond & Hambleton":[417.67,450,550,650,830],"Teesside":[288.96,410,475,550,750],"West Cumbria":[319.83,385,475,550,700],"North Cumbria":[319.83,395,475,590,740],"North Cheshire":[341.5,475,590,695,1000],"Southend":[406.33,680,875,1100,1350],"Portsmouth":[422.83,695,845,1000,1300],"Crawley & Reigate":[476.33,860,1100,1365,1750],"Guildford":[515,950,1225,1480,1978],"Blackwater Valley":[477.98,800,1000,1295,1700],"Brighton and Hove":[586.61,920,1200,1450,2000],"High Weald":[459.83,800,1075,1323,1825],"Sussex East":[361,595,750,950,1150],"Dover-Shepway":[431.5,510,695,865,1200],"Ashford":[393.24,750,850,1097.8,1440],"Maidstone":[444.83,750,905,1200,1550],"Medway & Swale":[410,675,850,940,1300],"North West Kent":[451.33,750,995,1200,1450],"South West Essex":[476.33,775,950,1200,1500],"Chelmsford":[426.33,795,950,1200,1450],"Bury St Edmunds":[451.33,630,775,955,1300],"Cambridge":[526.33,900,950,1125,1450],"Bedford":[450,650,825,1000,1300],"Harlow & Stortford":[451.33,810,1025,1210,1375],"Stevenage & North Herts":[436.17,775,975,1250,1600],"South East Herts":[475,835,1050,1370,1700],"South West Herts":[501.33,950,1250,1500,2000],"Lowestoft & Great Yarmouth":[376.33,441.07,575,630,825],"Kings Lynn":[399.83,548.23,650,775,1050],"Peterborough":[344.83,575,700,810,1050],"Central Norfolk & Norwich":[393.5,590,695,800,1150],"Northants Central":[375.86,550,695,795,995],"Northampton":[410.62,645,750,900,1160],"Milton Keynes":[501.33,775,925,1195,1495],"Luton":[436.17,700,875,1100,1350],"Aylesbury":[442.67,800,995,1330,1650],"Chilterns":[525,850,1100,1450,2000],"East Thames Valley":[591.5,900,1200,1450,1900],"Cherwell Valley":[466.5,775,950,1185,1450],"Oxford":[550,900,1125,1325,1750],"Exeter":[537,630,795,950,1300],"Leeds":[347.62,675,775,850,1200],"Wakefield":[326.98,500,595,725,885],"Doncaster":[304.17,425,500,550,725],"Scarborough":[309.83,425,550,650,725],"Harrogate":[421.33,595,735.86,875,1275],"Halifax":[356.31,440,525,625,750],"Kirklees":[316.33,450,525,650,825],"Barnsley":[316.33,415,450,550,775],"Derby":[359.83,450,595,700,935],"Peaks & Dales":[347.62,475,595,695,900],"Chesterfield":[351.33,450,525,600,850],"Rotherham":[351.33,430,500,550,817.5],"North Nottingham":[338.93,445,550,585,810],"Lancaster":[394.33,475,575,650,725],"Bradford & South Dales":[326.33,450,525,635,750],"Grantham & Newark":[376.33,425,575,655,875.01],"Lincoln":[354.14,495,600,675,925],"Grimsby":[317.2,395,480,521.43,720],"Lincolnshire Fens":[368.33,500,625,735,865.03],"York":[417.67,675,775,825,1200],"Scunthorpe":[310.68,410,495,575,725],"Nottingham":[380,550,650,750,970],"Wolds and Coast":[344.36,400,495,600,675],"Walton":[620,950,1212,1450,1975],"Inner East London":[699.5,1439.97,1750,2160.02,3000],"Inner South East London":[650,1295.5,1550,1950,2625],"Inner South West London":[685,1420,1700,2160.02,2900],"Central London":[829.83,1439.97,1793.98,2160.02,3060],"North West London":[621.33,1100,1350,1680,2100],"Outer East London":[561.33,1200,1400,1675,1950],"Outer North East London":[549.83,1000,1250,1500,1800],"Outer North London":[595,1150,1400,1695,2200],"Outer South East London":[600,1050,1300,1550,1800],"Outer South West London":[591.5,1200,1495,1800,2550],"Outer South London":[569.33,950,1200,1500,1950],"Barrow-in-Furness":[395.42,475,500,635,807.5],"Kendal":[325.89,575,650,775,995],"Huntingdon":[460,650,795,950,1250],"Oldham & Rochdale":[344.83,475,577.5,695,950],"Tameside & Glossop":[321.08,525,600,750,1150],"Inner West London":[760,1350,1625,2050,2550],"Outer West London":[576.33,1000,1300,1475,1800],"Inner North London":[708.27,1439.97,1793.98,2160.02,3060],"South Devon":[367.17,505,675,840,1100],"North Cornwall & Devon Borders":[368.33,475,609,725,950],"Eastbourne":[422.5,720,900,1083,1400],"Worthing":[445,760,950,1180,1465],"Chichester":[450,788,950,1225,1600],"Shropshire":[369.35,475,595,725,975],"Hull & East Riding":[335.83,380,475,550,700],"Leicester":[395.42,540,650,775,1050],"Mid & West Dorset":[426.33,595,750,900,1250]};
+const BED_IDX={"SAR":0,"1":1,"2":2,"3":3,"4":4};
+
+// Postcode area → BRMA mapping (top postcodes covering ~80% of UK)
+const POSTCODE_BRMA = {
+  'M':'Central Greater Manchester','BL':'Bolton and Bury','WN':'Wigan','OL':'Oldham & Rochdale','SK':'Tameside & Glossop',
+  'B':'Birmingham','CV':'Coventry','WV':'Black Country','DY':'Black Country','WS':'Black Country',
+  'LS':'Leeds','BD':'Bradford & South Dales','WF':'Wakefield','HD':'Kirklees','HX':'Halifax','YO':'York','HG':'Harrogate',
+  'L':'Greater Liverpool','PR':'Central Lancs','BB':'East Lancs','BL':'Bolton and Bury','LA':'Lancaster','FY':'Fylde Coast',
+  'S':'Sheffield','DN':'Doncaster','HU':'Hull & East Riding','RG':'Reading',
+  'N':'Outer North London','NW':'North West London','E':'Outer East London','SE':'Outer South East London','SW':'Outer South West London','W':'Outer West London','EC':'Central London','WC':'Central London',
+  'NG':'Nottingham','LE':'Leicester','DE':'Derby','NN':'Northampton','MK':'Milton Keynes',
+  'BS':'Bristol','BA':'Bath','TR':'Kernow West','PL':'Plymouth','EX':'Exeter','TQ':'South Devon',
+  'BN':'Brighton and Hove','PO':'Portsmouth','SO':'Southampton','GU':'Guildford','RH':'Crawley & Reigate',
+  'NE':'Tyneside','SR':'Sunderland','DH':'Durham','DL':'Darlington','TS':'Teesside','CA':'North Cumbria',
+  'CF':'','SA':'','LL':'','NP':'',  // Wales — not in our LHA table
+  'EH':'','G':'','AB':'','DD':'',   // Scotland
+  'BT':'',                            // NI
+  'CB':'Cambridge','IP':'Ipswich','NR':'Central Norfolk & Norwich','CO':'Colchester','CM':'Chelmsford','SS':'Southend',
+  'CT':'Canterbury','ME':'Medway & Swale','TN':'Sussex East','BR':'Outer South East London','DA':'North West Kent',
+  'OX':'Oxford','SN':'Swindon','SP':'Salisbury','GL':'Gloucester','HR':'Herefordshire','WR':'Worcester South',
+  'TF':'Shropshire','SY':'Shropshire','ST':'Mid Staffs','LU':'Luton','AL':'South East Herts','SG':'Stevenage & North Herts','HP':'Chilterns','HA':'Outer North London','UB':'Outer West London','TW':'Outer South West London','KT':'Outer South West London','CR':'Outer South London','SM':'Outer South London',
+};
+const LONDON = new Set(["Inner East London","Inner South East London","Inner South West London","Central London","North West London","Outer East London","Outer North East London","Outer North London","Outer South East London","Outer South West London","Outer South London","Inner West London","Outer West London","Inner North London"]);
+
+// Populate BRMA select
+const brmaSel = document.getElementById('brma');
+Object.keys(LHA).sort().forEach(name => {
+  const o = document.createElement('option'); o.value=name; o.textContent=name; brmaSel.appendChild(o);
+});
+
+// ═══════ Toggle wiring ═══════
+document.querySelectorAll('.toggle-group').forEach(g => {
+  const hidden = document.getElementById(g.dataset.input);
+  g.querySelectorAll('.toggle-btn').forEach(btn => btn.addEventListener('click', () => {
+    g.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    hidden.value = btn.dataset.value;
+    recalc();
+  }));
+});
+
+// ═══════ Postcode → BRMA auto-detect ═══════
+document.getElementById('postcode').addEventListener('input', e => {
+  const pc = e.target.value.toUpperCase().replace(/\s/g,'').slice(0,4);
+  // Try 2-letter then 1-letter prefix
+  let area = pc.match(/^[A-Z]{2}/)?.[0] || pc.match(/^[A-Z]/)?.[0];
+  if (area) {
+    let brma = POSTCODE_BRMA[area];
+    if (!brma && area.length === 2) brma = POSTCODE_BRMA[area[0]];
+    if (brma) {
+      brmaSel.value = brma;
+      document.getElementById('postcode-detected').innerHTML = `→ Detected: <strong style="color:var(--purple)">${brma}</strong>`;
+    } else {
+      document.getElementById('postcode-detected').textContent = `— ${area}: not in lookup. Pick BRMA manually below.`;
+    }
+  }
+  recalc();
+});
+
+// ═══════ Persona presets ═══════
+const PERSONAS = {
+  'single-parent': {age:32,sex:'F',adults:1,children:2,disabled:0,health:'N',carer:'N',pregnant:'N',bereaved:'N',veteran:'N',unemployed:'N',renting:'Y',rent:700,earned:8000,capital:500,childcare:200,postcode:'M1',brma:'Central Greater Manchester',bedroom:'2',country:'England'},
+  'disabled': {age:45,sex:'M',adults:1,children:0,disabled:0,health:'Y',carer:'N',pregnant:'N',bereaved:'N',veteran:'N',unemployed:'N',renting:'Y',rent:550,earned:0,capital:3000,childcare:0,postcode:'B1',brma:'Birmingham',bedroom:'1',country:'England'},
+  'carer': {age:50,sex:'F',adults:2,children:1,disabled:1,health:'N',carer:'Y',pregnant:'N',bereaved:'N',veteran:'N',unemployed:'N',renting:'N',rent:0,earned:25000,capital:5000,childcare:0,postcode:'',brma:'',bedroom:'2',country:'Wales'},
+  'pensioner': {age:70,sex:'M',adults:2,children:0,disabled:0,health:'N',carer:'N',pregnant:'N',bereaved:'N',veteran:'N',unemployed:'N',renting:'N',rent:0,earned:4000,capital:8000,childcare:0,postcode:'LS1',brma:'Leeds',bedroom:'1',country:'England'},
+  'unemployed': {age:25,sex:'M',adults:1,children:0,disabled:0,health:'N',carer:'N',pregnant:'N',bereaved:'N',veteran:'N',unemployed:'Y',renting:'Y',rent:500,earned:0,capital:1000,childcare:0,postcode:'M1',brma:'Central Greater Manchester',bedroom:'SAR',country:'England'},
+  'reset': {age:30,sex:'M',adults:1,children:0,disabled:0,health:'N',carer:'N',pregnant:'N',bereaved:'N',veteran:'N',unemployed:'N',renting:'N',rent:0,earned:0,capital:0,childcare:0,postcode:'',brma:'',bedroom:'1',country:'England'},
+};
+function applyPersona(key) {
+  const p = PERSONAS[key]; if (!p) return;
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.persona === key));
+  Object.entries(p).forEach(([k,v]) => {
+    const el = document.getElementById(k);
+    if (!el) return;
+    if (el.type === 'hidden') {
+      el.value = v;
+      const g = document.querySelector(`.toggle-group[data-input="${k}"]`);
+      if (g) g.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.value === v));
+    } else {
+      el.value = v;
+    }
+  });
+  // Trigger postcode detection
+  if (p.postcode) document.getElementById('postcode').dispatchEvent(new Event('input'));
+  recalc();
+  // Jump to step 5 to see all answers
+  goStep(5);
+}
+document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => applyPersona(c.dataset.persona)));
+
+// ═══════ Wizard nav ═══════
+let curStep = 1;
+const totalSteps = 5;
+function goStep(n) {
+  curStep = Math.max(1, Math.min(totalSteps + 1, n));
+  document.querySelectorAll('.step-content').forEach(c => c.classList.toggle('active', +c.dataset.step === curStep));
+  document.querySelectorAll('.step').forEach(s => {
+    const sn = +s.dataset.step;
+    s.classList.toggle('active', sn === curStep);
+    s.classList.toggle('done', sn < curStep);
+  });
+  document.getElementById('steps').style.setProperty('--progress', ((curStep-1)/(totalSteps-1)*100) + '%');
+  document.getElementById('btn-back').style.visibility = curStep === 1 ? 'hidden' : 'visible';
+  document.getElementById('btn-next').textContent = curStep === totalSteps ? 'See results →' : 'Continue →';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (curStep < totalSteps) goStep(curStep + 1);
+  else showResults();
+});
+document.getElementById('btn-back').addEventListener('click', () => goStep(curStep - 1));
+document.querySelectorAll('.step').forEach(s => s.addEventListener('click', () => goStep(+s.dataset.step)));
+
+// ═══════ v4 logic ═══════
+const RATES={uc_std_single_u25:3803.76,uc_std_single_25:4801.68,uc_std_couple_u25:5970.6,uc_std_couple_25:7537.2,uc_child:3513.72,uc_disabled_child_hi:5950.44,uc_lcwra:5079.24,uc_carer:2420.16,uc_cc_cap_1:12382.56,uc_cc_cap_2plus:21227.28,esa_u25:3790.8,esa_25:4786.6,esa_support:2522,pip_dl_std:3842.8,pip_mob_std:1518.4,aa_higher:5740.8,ca:4331.6,jsa_u25:3790.8,jsa_25:4786.6,state_pension:11973,pc_single:11809.2,pc_couple:18023.2,child_ben_1st:1354.6,child_ben_more:897,winter_fuel_66:200,winter_fuel_80:300,smp:7300.02,ma:7300.02,spp:374.36,warm_home:150,healthy_start:442,fsm_per_child:475,bsp_std:4300,bsp_higher:9800,afip:9747.4};
+const WA_H=4932,WA_NH=8076,TAPER=0.55,CAP_T=52.2;
+const CAP_EXEMPT=new Set(['pip_dl','pip_mob','dla_care','dla_mob','aa','ca','bsp','wdp','afip']);
+const BENEFITS=[
+  {id:'uc_std',name:'Universal Credit — Standard',group:'uc',el:p=>p.age>=16&&p.age<66&&p.capital<16000&&(p.earned<20000||p.health||p.unemp||p.children>0||p.carer),r:p=>p.age<25?(p.adults===1?RATES.uc_std_single_u25:RATES.uc_std_couple_u25):(p.adults===1?RATES.uc_std_single_25:RATES.uc_std_couple_25),w:'Working-age, low income, capital under £16k',a:'gov.uk/universal-credit'},
+  {id:'uc_lcwra',name:'UC LCWRA (health top-up)',group:'uc',el:p=>p.age>=16&&p.age<66&&p.health,r:()=>RATES.uc_lcwra,w:'Health limits work (3-mo wait + WCA in practice)',a:'gov.uk/universal-credit'},
+  {id:'uc_carer',name:'UC Carer element',group:'uc',autoS:'auto',el:p=>p.age>=16&&p.age<66&&p.carer,r:()=>RATES.uc_carer,w:'Caring 35+ hrs/wk',a:'gov.uk/universal-credit'},
+  {id:'uc_child',name:'UC Child element',group:'uc',autoS:'auto',el:p=>p.age>=16&&p.age<66&&p.children>0,r:p=>Math.min(p.children,2)*RATES.uc_child,w:p=>`Two-child limit: ${Math.min(p.children,2)}/${p.children}`,a:'gov.uk/universal-credit'},
+  {id:'uc_dis_child',name:'UC Disabled child',group:'uc',autoS:'auto',el:p=>p.age>=16&&p.age<66&&p.disabled>0,r:p=>p.disabled*RATES.uc_disabled_child_hi,w:p=>`${p.disabled} disabled child${p.disabled>1?'ren':''}`,a:'gov.uk/universal-credit'},
+  {id:'uc_housing',name:'UC Housing element',group:'uc',autoS:'auto',el:p=>p.age>=16&&p.age<66&&p.renting,r:p=>Math.min(p.rent,p.lha_cap)*12,w:p=>p.lha_cap>0&&p.rent>p.lha_cap?`Capped at LHA £${p.lha_cap}/mo`:`Your annual rent`,a:'gov.uk/universal-credit'},
+  {id:'uc_childcare',name:'UC Childcare element',group:'uc',autoS:'auto',el:p=>p.age>=16&&p.age<66&&p.children>0&&p.childcare>0,r:p=>Math.min(p.childcare*12*0.85,p.children>=2?RATES.uc_cc_cap_2plus:RATES.uc_cc_cap_1),w:'85% of registered childcare',a:'gov.uk/universal-credit'},
+  {id:'esa',name:'ESA (Support Group)',group:'other',el:p=>p.age>=16&&p.age<66&&p.health,r:p=>(p.age<25?RATES.esa_u25:RATES.esa_25)+RATES.esa_support,w:'Health + NI contributions',a:'gov.uk/employment-support-allowance'},
+  {id:'pip_dl',name:'PIP — Daily Living',group:'other',el:p=>p.age>=16&&p.age<66&&p.health,r:()=>RATES.pip_dl_std,w:'Health condition. Tax-free.',a:'gov.uk/pip'},
+  {id:'pip_mob',name:'PIP — Mobility',group:'other',el:p=>p.age>=16&&p.age<66&&p.health,r:()=>RATES.pip_mob_std,w:'Mobility issues. Tax-free.',a:'gov.uk/pip'},
+  {id:'dla_care',name:'DLA (child) — Care',group:'other',el:p=>p.disabled>0,r:()=>RATES.pip_dl_std,w:'Disabled child in household',a:'gov.uk/disability-living-allowance-children'},
+  {id:'dla_mob',name:'DLA (child) — Mobility',group:'other',el:p=>p.disabled>0,r:()=>RATES.pip_mob_std,w:'Disabled child',a:'gov.uk/disability-living-allowance-children'},
+  {id:'aa',name:'Attendance Allowance',group:'other',el:p=>p.age>=66&&(p.health||p.disabled>0),r:()=>RATES.aa_higher,w:'66+ with care needs',a:'gov.uk/attendance-allowance'},
+  {id:'ca',name:"Carer's Allowance",group:'other',autoS:'likely',el:p=>p.age>=16&&p.age<66&&p.carer,r:()=>RATES.ca,w:'Caring 35+ hrs/wk + earning <£196/wk',a:'gov.uk/carers-allowance'},
+  {id:'jsa',name:'New-style JSA',group:'other',el:p=>p.age>=16&&p.age<66&&p.unemp,r:p=>p.age<25?RATES.jsa_u25:RATES.jsa_25,w:'Unemployed. Max 182 days.',a:'gov.uk/jobseekers-allowance'},
+  {id:'sp',name:'State Pension',group:'other',autoS:'auto',el:p=>p.age>=66,r:p=>p.adults===2?RATES.state_pension*2:RATES.state_pension,w:p=>p.adults===2?'Doubled for couple at SPA':'66+ with 35+ NI years',a:'gov.uk/state-pension'},
+  {id:'pc',name:'Pension Credit',group:'other',el:p=>p.age>=66&&p.earned<16000&&p.capital<16000,r:p=>{const base=p.adults===2?RATES.pc_couple:RATES.pc_single;const pen=p.capital>10000?Math.ceil((p.capital-10000)/500)*52:0;return Math.max(0,base-pen)},w:'66+ low income. Capital >£10k tapers.',a:'gov.uk/pension-credit'},
+  {id:'bsp',name:'Bereavement Support Payment',group:'other',autoS:'likely',el:p=>p.bereaved,r:p=>p.children>0?RATES.bsp_higher:RATES.bsp_std,w:p=>p.children>0?'Higher rate (with children)':'Standard rate',a:'gov.uk/bereavement-support-payment'},
+  {id:'smp',name:'Statutory Maternity Pay',group:'other',el:p=>p.pregnant&&p.sex==='F'&&p.age>=16&&p.age<66,r:()=>RATES.smp,w:'Pregnant + female + 26+ wks service',a:'gov.uk/maternity-pay-leave'},
+  {id:'spp',name:'Statutory Paternity Pay',group:'other',el:p=>p.pregnant&&p.age>=16&&p.age<66,r:()=>RATES.spp,w:'New baby + employed',a:'gov.uk/paternity-pay-leave'},
+  {id:'ma',name:'Maternity Allowance',group:'other',el:p=>p.pregnant&&p.sex==='F'&&p.age>=16&&p.age<66,r:()=>RATES.ma,w:'Self-employed / not eligible for SMP',a:'gov.uk/maternity-allowance'},
+  {id:'cb',name:'Child Benefit',group:'other',autoS:'auto',el:p=>p.children>0,r:p=>RATES.child_ben_1st+RATES.child_ben_more*Math.max(p.children-1,0),w:p=>`£26.05/wk eldest + £17.25/wk × ${Math.max(p.children-1,0)} more`,a:'gov.uk/child-benefit'},
+  {id:'ctr',name:'Council Tax Reduction',group:'other',el:p=>p.earned<25000,r:()=>1500,w:'Low income. Rough £1,500 estimate.',a:'gov.uk/apply-council-tax-reduction'},
+  {id:'wfp',name:'Winter Fuel Payment',group:'other',autoS:'auto',el:p=>p.age>=66,r:p=>p.age>=80?RATES.winter_fuel_80:RATES.winter_fuel_66,w:'66+. Auto-paid in November.',a:'gov.uk/winter-fuel-payment'},
+  {id:'whd',name:'Warm Home Discount',group:'other',el:p=>p.earned<25000,r:()=>RATES.warm_home,w:'£150 one-off energy bill credit',a:'gov.uk/the-warm-home-discount-scheme'},
+  {id:'hs',name:'Healthy Start Vouchers',group:'other',el:p=>p.country!=='Scotland'&&(p.pregnant||p.children>0),r:()=>RATES.healthy_start,w:'Pregnant or kids <4 (E/W/NI)',a:'healthystart.nhs.uk'},
+  {id:'fsm',name:'Free School Meals',group:'other',el:p=>p.children>0&&p.earned<25000,r:p=>RATES.fsm_per_child*p.children,w:p=>`£475 × ${p.children} child${p.children>1?'ren':''}`,a:'gov.uk/apply-free-school-meals'},
+  {id:'wdp',name:'War Disablement Pension',group:'other',el:p=>p.veteran,r:()=>6000,w:'Pre-2005 service injury',a:'gov.uk/war-pension'},
+  {id:'afip',name:'Armed Forces Independence Payment',group:'other',el:p=>p.veteran&&p.age>=16&&p.age<66,r:()=>RATES.afip,w:'Service injury tariff 1-8',a:'gov.uk/guidance/armed-forces-compensation'},
+];
+
+function recalc(){
+  const p = {
+    age: +document.getElementById('age').value||30,
+    sex: document.getElementById('sex').value,
+    adults: +document.getElementById('adults').value||1,
+    children: +document.getElementById('children').value||0,
+    disabled: +document.getElementById('disabled').value||0,
+    country: document.getElementById('country').value,
+    health: document.getElementById('health').value==='Y',
+    carer: document.getElementById('carer').value==='Y',
+    pregnant: document.getElementById('pregnant').value==='Y',
+    bereaved: document.getElementById('bereaved').value==='Y',
+    veteran: document.getElementById('veteran').value==='Y',
+    unemp: document.getElementById('unemployed').value==='Y',
+    renting: document.getElementById('renting').value==='Y',
+    rent: +document.getElementById('rent').value||0,
+    earned: +document.getElementById('earned').value||0,
+    capital: +document.getElementById('capital').value||0,
+    childcare: +document.getElementById('childcare').value||0,
+    brma: document.getElementById('brma').value,
+    bedroom: document.getElementById('bedroom').value,
+    postcode: document.getElementById('postcode').value,
+  };
+  p.lha_cap = (p.brma && LHA[p.brma]) ? LHA[p.brma][BED_IDX[p.bedroom] ?? 1] : p.rent;
+
+  const results = BENEFITS.map(b => {
+    const e = b.el(p); let amt=0, s='na';
+    if (e) {
+      amt = b.r(p);
+      s = b.autoS ? b.autoS : (b.group==='uc' ? 'auto' : 'check');
+    }
+    return {...b, status:s, amount:amt, why: typeof b.w==='function'?b.w(p):b.w};
+  });
+
+  const uc_gross = results.filter(r=>r.group==='uc'&&r.amount>0).reduce((s,r)=>s+r.amount,0);
+  const has_h = p.renting;
+  const has_kh = p.children>0||p.health;
+  const wa = has_kh?(has_h?WA_H:WA_NH):0;
+  const taper = Math.max(0,(p.earned-wa)*TAPER);
+  let ct = 0;
+  if (p.capital>=16000) ct = uc_gross;
+  else if (p.capital>6000) ct = Math.ceil((p.capital-6000)/250)*CAP_T;
+  const net_uc = Math.max(0, uc_gross-taper-ct);
+
+  const other_al = results.filter(r=>r.group==='other'&&(r.status==='auto'||r.status==='likely')).reduce((s,r)=>s+r.amount,0);
+  const has_exempt = results.some(r=>CAP_EXEMPT.has(r.id)&&r.amount>0);
+  let cap_red = 0;
+  if (!has_exempt && p.age>=16 && p.age<66) {
+    const isLon = LONDON.has(p.brma);
+    const fam = p.adults===2||p.children>0;
+    const cap = isLon?(fam?25323:16967):(fam?22020:14753);
+    const cappable = net_uc + results.filter(r=>r.group==='other'&&!CAP_EXEMPT.has(r.id)&&r.amount>0).reduce((s,r)=>s+r.amount,0);
+    if (cappable>cap) cap_red = cappable-cap;
+  }
+  const net_uc_cap = Math.max(0, net_uc-cap_red);
+  const def = net_uc_cap + other_al;
+  const household = def + p.earned;
+
+  const fmt = n => '£'+Math.round(n).toLocaleString('en-GB');
+  document.getElementById('s-uc').textContent = fmt(net_uc_cap);
+  document.getElementById('s-other').textContent = fmt(other_al);
+  document.getElementById('s-total').textContent = fmt(def);
+
+  const taperRow = document.getElementById('s-taper-row');
+  if (taper+ct>0) {taperRow.style.display=''; document.getElementById('s-taper').textContent='−'+fmt(taper+ct);}
+  else taperRow.style.display='none';
+  const capRow = document.getElementById('s-cap-row');
+  if (cap_red>0) {capRow.style.display=''; document.getElementById('s-cap').textContent='−'+fmt(cap_red);}
+  else capRow.style.display='none';
+
+  // Store for results view
+  window._state = {p, results, net_uc_cap, other_al, taper, ct, cap_red, def, household, fmt};
+}
+
+function showResults() {
+  recalc();
+  const s = window._state; if (!s) return;
+  const {p, results, net_uc_cap, other_al, taper, ct, cap_red, def, household, fmt} = s;
+
+  document.getElementById('wizard-view').style.display = 'none';
+  document.getElementById('results-view').style.display = '';
+
+  document.getElementById('r-total').textContent = fmt(def);
+  document.getElementById('r-mo').textContent = fmt(def/12);
+  document.getElementById('r-wk').textContent = fmt(def/52);
+  document.getElementById('r-hh').textContent = fmt(household);
+
+  // Adjustments callout
+  const adj = document.getElementById('adj-callout');
+  let adjHtml = '';
+  if (taper>0||ct>0||cap_red>0) {
+    adjHtml = '<div class="adj-box"><div class="ti">⚠ Adjustments applied</div>';
+    if (taper>0) adjHtml += `<div class="ln"><span>UC earnings taper (55p per £1 over £${(p.children>0||p.health)?(p.renting?'411':'673'):'0'}/mo)</span><span>−${fmt(taper)}</span></div>`;
+    if (ct>0) adjHtml += `<div class="ln"><span>UC capital tariff (£4.35/mo per £250 over £6k)</span><span>−${fmt(ct)}</span></div>`;
+    if (cap_red>0) adjHtml += `<div class="ln"><span>Benefit cap (working-age + no disability/carer benefits)</span><span>−${fmt(cap_red)}</span></div>`;
+    adjHtml += '</div>';
+  }
+  adj.innerHTML = adjHtml;
+
+  // Render cards
+  const autoEl = document.getElementById('cards-auto');
+  const checkEl = document.getElementById('cards-check');
+  autoEl.innerHTML=''; checkEl.innerHTML='';
+  let autoCount=0, checkCount=0;
+  results.forEach(r => {
+    if (r.status==='na'||r.amount===0) return;
+    const isA = r.status==='auto'||r.status==='likely';
+    const card = document.createElement('div');
+    card.className = `bcard ${isA?'auto':'check'}`;
+    card.innerHTML = `
+      <div class="ico">${isA?'✓':'?'}</div>
+      <div class="body">
+        <div class="ttl">${r.name}</div>
+        <div class="why">${r.why}</div>
+        ${r.a?`<a class="apply" href="https://${r.a}" target="_blank" rel="noopener">Apply: ${r.a} →</a>`:''}
+      </div>
+      <div class="amt"><div class="n">${fmt(r.amount)}</div><div class="p">${isA?'/yr':'/yr if confirmed'}</div></div>
+    `;
+    if (isA) {autoEl.appendChild(card); autoCount++;}
+    else {checkEl.appendChild(card); checkCount++;}
+  });
+  if (!autoCount) autoEl.innerHTML = '<p style="color:var(--text-muted);font-size:14px;padding:12px">No auto-eligible benefits for this profile.</p>';
+  if (!checkCount) checkEl.innerHTML = '<p style="color:var(--text-muted);font-size:14px;padding:12px">No additional benefits flagged.</p>';
+
+  // Property CTA budget
+  const monthlyHousing = (results.find(r=>r.id==='uc_housing')?.amount || 0) / 12;
+  const budget = monthlyHousing > 0 ? monthlyHousing : (def/12 * 0.4);  // 40% of total income as rough budget
+  document.getElementById('budget-pill').textContent = fmt(Math.round(budget));
+  document.getElementById('budget-area').textContent = p.brma || 'your area';
+  const propUrl = p.brma
+    ? `https://app.dssmove.co.uk/property-to-rent?location=${encodeURIComponent(p.brma.split(' ')[0])}&maxRent=${Math.round(budget)}`
+    : 'https://app.dssmove.co.uk/property-to-rent';
+  document.getElementById('btn-find-property').href = propUrl;
+
+  // Boot the affordability module (async — fetches postcode → LA → also chains to initPropertyResults)
+  initAfford();
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ═══════════════════════════════════════════════════════════
+// AFFORDABILITY MODULE — financial education for tenants
+// ═══════════════════════════════════════════════════════════
+
+// ─── Council Tax 2025/26 BAND A annual £ — top ~100 LAs covering ~90% of UK renters
+// Sources: each LA's published 2025/26 council tax setting docs
+const CT_BAND_A = {
+  // England — major cities
+  'Birmingham':1556,'Manchester':1456,'Leeds':1388,'Sheffield':1495,'Liverpool':1564,
+  'Bradford':1580,'Bristol, City of':1617,'Coventry':1508,'Nottingham':1628,'Leicester':1562,
+  'Newcastle upon Tyne':1580,'Sunderland':1549,'Kingston upon Hull, City of':1491,'Stoke-on-Trent':1392,
+  'Wolverhampton':1547,'Plymouth':1470,'Derby':1538,'Southampton':1447,'Portsmouth':1460,
+  'Salford':1544,'Wakefield':1478,'Doncaster':1517,'Rotherham':1556,'Barnsley':1581,
+  'Sandwell':1455,'Walsall':1543,'Dudley':1408,'Tameside':1551,'Oldham':1633,
+  'Rochdale':1572,'Wigan':1373,'Bolton':1521,'Bury':1500,'Stockport':1567,'Trafford':1240,
+  'Sefton':1577,'Wirral':1559,'Knowsley':1611,'St. Helens':1582,'Halton':1571,
+  'Warrington':1452,'Cheshire West and Chester':1556,'Cheshire East':1502,
+  'Calderdale':1542,'Kirklees':1551,'York':1383,'Middlesbrough':1685,'Stockton-on-Tees':1542,
+  'Redcar and Cleveland':1645,'Darlington':1571,'Hartlepool':1668,'County Durham':1623,
+  'Northumberland':1568,'North Tyneside':1490,'Gateshead':1646,'South Tyneside':1611,
+  'Cumberland':1481,'Westmorland and Furness':1430,
+  // London boroughs (lower Band A, plus GLA precept ~£295)
+  'Westminster':618,'Wandsworth':675,'City of London':890,'Kensington and Chelsea':894,
+  'Hammersmith and Fulham':1030,'Camden':1235,'Tower Hamlets':1180,'Newham':1332,
+  'Hackney':1232,'Islington':1170,'Lambeth':1193,'Southwark':1236,'Lewisham':1360,
+  'Greenwich':1170,'Croydon':1617,'Bromley':1228,'Bexley':1543,'Sutton':1488,'Merton':1377,
+  'Kingston upon Thames':1715,'Richmond upon Thames':1561,'Hounslow':1391,'Ealing':1331,
+  'Brent':1387,'Harrow':1571,'Barnet':1359,'Enfield':1463,'Haringey':1452,'Waltham Forest':1467,
+  'Redbridge':1382,'Havering':1593,'Barking and Dagenham':1437,
+  // Yorkshire, Midlands, South — counties
+  'Cornwall':1591,'Devon':1450,'Dorset':1592,'Wiltshire':1574,'Somerset':1593,
+  'East Sussex':1655,'West Sussex':1542,'Surrey':1681,'Kent':1604,'Hampshire':1361,
+  'Hertfordshire':1500,'Essex':1438,'Bedford':1652,'Buckinghamshire':1546,'Oxfordshire':1715,
+  'Suffolk':1448,'Norfolk':1554,'Cambridgeshire':1567,'Lincolnshire':1559,
+  'Nottinghamshire':1521,'Derbyshire':1546,'Staffordshire':1396,'Warwickshire':1556,
+  'Worcestershire':1502,'Shropshire':1666,'Herefordshire, County of':1659,'Gloucestershire':1542,
+  'North Yorkshire':1572,'East Riding of Yorkshire':1571,'Lancashire':1666,
+  'Bath and North East Somerset':1500,'North Somerset':1466,'South Gloucestershire':1576,
+  'Bournemouth, Christchurch and Poole':1500,'Brighton and Hove':1672,'Reading':1559,
+  'Slough':1622,'West Berkshire':1494,'Wokingham':1607,'Bracknell Forest':1503,
+  'Windsor and Maidenhead':1419,'Milton Keynes':1450,'Luton':1493,'Central Bedfordshire':1597,
+  'Peterborough':1417,'Thurrock':1396,'Southend-on-Sea':1349,'Medway':1377,
+  'Isle of Wight':1583,'Telford and Wrekin':1518,
+  // Wales — 2025/26 Band A (lower than England generally)
+  'Cardiff':1294,'Swansea':1364,'Newport':1370,'Rhondda Cynon Taf':1646,'Caerphilly':1466,
+  'Bridgend':1492,'Neath Port Talbot':1633,'Carmarthenshire':1432,'Pembrokeshire':1232,
+  'Wrexham':1276,'Flintshire':1424,'Conwy':1457,'Denbighshire':1543,'Gwynedd':1466,
+  'Powys':1574,'Ceredigion':1495,'Vale of Glamorgan':1377,'Torfaen':1495,
+  'Monmouthshire':1396,'Blaenau Gwent':1779,'Merthyr Tydfil':1564,'Isle of Anglesey':1456,
+  // Scotland — Band A 2025/26 (frozen / capped)
+  'Glasgow City':937,'City of Edinburgh':1041,'Aberdeen City':966,'Dundee City':1017,
+  'Fife':940,'North Lanarkshire':902,'South Lanarkshire':874,'Renfrewshire':957,
+  'Highland':962,'Aberdeenshire':986,'Falkirk':884,'Perth and Kinross':1015,
+  'West Lothian':917,'East Ayrshire':976,'North Ayrshire':993,'South Ayrshire':959,
+  'Dumfries and Galloway':976,'Stirling':957,'Inverclyde':1052,'East Dunbartonshire':1014,
+  'Argyll and Bute':1028,'Scottish Borders':921,'East Lothian':947,'Midlothian':972,
+  'Moray':984,'East Renfrewshire':1015,'West Dunbartonshire':992,'Angus':976,
+  'Clackmannanshire':985,'Na h-Eileanan Siar':797,'Orkney Islands':897,'Shetland Islands':921,
+  // NI (Domestic Rates — different system but normalised)
+  'Belfast':900,'Lisburn and Castlereagh':870,'Ards and North Down':850,
+  'Newry, Mourne and Down':880,'Mid and East Antrim':910,'Antrim and Newtownabbey':880,
+};
+const CT_DEFAULT = 1432;  // UK average Band A 2025/26
+
+// Council tax band multipliers (Band A = 6/9 of Band D)
+// We multiply Band A by these to get other bands:
+const BAND_MULTIPLIER = {'A':1.0,'B':7/6,'C':8/6,'D':9/6,'E':11/6,'F':13/6,'G':15/6,'H':18/6};
+
+// ─── Ofgem TDCV (Typical Domestic Consumption Values) — Apr 2025 update
+// [electricity kWh/yr, gas kWh/yr]
+const TDCV = {
+  low:    {elec:1800, gas:7500,  label:'Low (1-2 people, flat / small house)'},
+  medium: {elec:2700, gas:11500, label:'Medium (2-3 people, 3-bed house)'},
+  high:   {elec:4100, gas:17000, label:'High (4-5 people, 4-bed house)'},
+};
+
+// ─── Ofgem Price Cap Q2 2025 (Apr-Jun 2025) — UK averages, Direct Debit
+// Vary by region ±5%
+const ENERGY_RATES = {
+  elec_unit_p:    27.03,  // pence per kWh
+  elec_standing_p:53.80,  // pence per day
+  gas_unit_p:      6.99,
+  gas_standing_p: 32.67,
+};
+function energyAnnualCost(kWh, unitP, standingP) {
+  return (kWh * unitP + 365 * standingP) / 100;  // returns £/yr
+}
+
+// ─── Water — Ofwat 2025/26 averages (England & Wales). Combined water + sewerage £/yr
+const WATER_AVG = {
+  'Thames Water':475,'Severn Trent Water':461,'Anglian Water':615,'Yorkshire Water':511,
+  'United Utilities':487,'South West Water':668,'Wessex Water':603,'Southern Water':511,
+  'Northumbrian Water':493,'South East Water':289,'Affinity Water':264,
+  'Welsh Water (Dŵr Cymru)':563,'Scottish Water':473,  // Scottish bundled in council tax really
+};
+const WATER_DEFAULT = 473;  // UK average
+
+// ─── Broadband — Ofcom social tariff list (UC claimants eligible)
+const BROADBAND = {
+  social_low:  15,   // BT Home Essentials, Vodafone Essentials — £15/mo
+  social_mid:  20,   // Sky Basics, Virgin Essential Plus
+  standard:    30,   // typical fibre package full price
+};
+
+// ─── Food — ONS Family Spending Survey 2024 + JRF Minimum Income Standard
+// £/month per person on essentials groceries
+const FOOD = {
+  adult:        250,    // ~£58/wk
+  teen:         200,    // 12-17
+  child:        150,    // under 12
+  pensioner:    220,    // slightly lower (less food, more variety)
+};
+
+// ─── TV Licence
+const TV_LICENCE = 174.50;  // /yr; free if 75+ on Pension Credit
+const TV_LICENCE_MO = TV_LICENCE / 12;
+
+// ─── Council Tax Reduction estimator (rough — varies by LA)
+// Most schemes give ~100% reduction for UC claimants with no earnings, taper as earnings rise
+function ctReductionPercent(p, monthlyIncome) {
+  // p = wizard answers; monthlyIncome = total monthly income inc earnings
+  // Pension Credit recipients: full 100% reduction
+  if (p.age >= 66 && p.earned < 16000 && p.capital < 16000) return 1.0;
+  // Working-age UC claimants
+  if (p.capital >= 16000) return 0;  // ineligible
+  const annualEarn = p.earned;
+  if (annualEarn === 0) return 1.0;       // no earnings → 100%
+  if (annualEarn < 5000) return 0.80;
+  if (annualEarn < 10000) return 0.60;
+  if (annualEarn < 15000) return 0.40;
+  if (annualEarn < 20000) return 0.20;
+  return 0;
+}
+
+// ─── Postcodes.io: live postcode → LA lookup (free, CORS-enabled, no auth)
+const postcodeLACache = {};
+async function postcodeToLA(postcode) {
+  if (!postcode) return null;
+  const norm = postcode.toUpperCase().replace(/\s+/g,'');
+  if (postcodeLACache[norm]) return postcodeLACache[norm];
+  try {
+    // Use outcode endpoint (just first half of postcode) — works with partial too
+    const r = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}`);
+    if (r.ok) {
+      const d = await r.json();
+      const la = d.result?.admin_district || null;
+      postcodeLACache[norm] = la;
+      return la;
+    }
+    // Fall back to outcode lookup. UK inward code is always 3 chars (digit + 2 letters),
+    // so the outcode is everything before the last 3 chars of the normalised postcode.
+    const oc = norm.length >= 5 ? norm.slice(0, -3) : norm;
+    const r2 = await fetch(`https://api.postcodes.io/outcodes/${encodeURIComponent(oc)}`);
+    if (r2.ok) {
+      const d = await r2.json();
+      const la = d.result?.admin_district?.[0] || null;
+      postcodeLACache[norm] = la;
+      return la;
+    }
+  } catch (e) { /* offline / CORS — fall through */ }
+  postcodeLACache[norm] = null;
+  return null;
+}
+
+// ─── Affordability state + render
+const affordState = {rent:700, size:'medium', la:null, ctBandA:CT_DEFAULT};
+
+async function initAfford() {
+  // Default rent to current LHA-implied housing or 70% of UC budget
+  const s = window._state; if (!s) return;
+  const p = s.p;
+  const housingMo = (s.results.find(r=>r.id==='uc_housing')?.amount || 0) / 12;
+  if (housingMo > 0) {
+    affordState.rent = Math.round(housingMo);
+  } else {
+    affordState.rent = Math.round((s.def/12) * 0.4);
+  }
+  document.getElementById('afford-rent').value = affordState.rent;
+
+  // Try postcode lookup → real LA
+  const pc = (p.postcode || '').trim();
+  let la = null;
+  if (pc) {
+    document.getElementById('afford-la').textContent = '⟳ Looking up your council…';
+    la = await postcodeToLA(pc);
+  }
+  affordState.la = la;
+  if (la && CT_BAND_A[la] !== undefined) {
+    affordState.ctBandA = CT_BAND_A[la];
+    document.getElementById('afford-la').innerHTML = `📍 ${escHTML(la)} &middot; Band A: £${CT_BAND_A[la]}/yr`;
+  } else if (la) {
+    affordState.ctBandA = CT_DEFAULT;
+    document.getElementById('afford-la').innerHTML = `📍 ${escHTML(la)} &middot; <em>using UK avg £${CT_DEFAULT}/yr</em>`;
+  } else {
+    affordState.ctBandA = CT_DEFAULT;
+    document.getElementById('afford-la').innerHTML = pc ? `📍 Couldn't look up &mdash; using UK average` : `<em>Enter postcode above to get exact council tax</em>`;
+  }
+
+  // Wire up gov.uk band check
+  document.getElementById('btn-afford-band').onclick = () => {
+    const u = pc ? `https://www.tax.service.gov.uk/check-council-tax-band/search?postcode=${encodeURIComponent(pc)}` : 'https://www.gov.uk/council-tax-bands';
+    window.open(u, '_blank');
+  };
+
+  renderAfford();
+  // Now that LA is resolved, init property results (uses LA as default location)
+  initPropertyResults();
+}
+
+function renderAfford() {
+  const s = window._state; if (!s) return;
+  const {p, results, def, household, fmt} = s;
+  const tbody = document.getElementById('afford-tbody');
+  const rent = affordState.rent;
+  const size = affordState.size;
+  const ctYr = affordState.ctBandA;
+
+  // RENT
+  // Housing element for THIS hypothetical property = min(rent, LHA cap for area + bedroom size).
+  // p.lha_cap is set by recalc() from LHA table; if no BRMA, fall back to current rent.
+  // (We don't reuse the original uc_housing amount because that's locked to the rent the
+  // user originally typed — the slider lets them explore other properties.)
+  const rentYr = rent * 12;
+  const lhaCap = p.lha_cap || rent;
+  const onUC_for_housing = (results.find(r=>r.id==='uc_std')?.amount || 0) > 0;  // gates housing element
+  const housingApplied = onUC_for_housing ? Math.min(rent, lhaCap) : 0;
+  const rentShortfall = Math.max(0, rent - housingApplied);
+
+  // COUNCIL TAX
+  const ctMo = ctYr / 12;
+  const ctrPct = ctReductionPercent(p, def/12 + p.earned/12);
+  const ctReductionMo = ctMo * ctrPct;
+  const ctNet = ctMo - ctReductionMo;
+
+  // ENERGY
+  const tdcv = TDCV[size];
+  const elecYr = energyAnnualCost(tdcv.elec, ENERGY_RATES.elec_unit_p, ENERGY_RATES.elec_standing_p);
+  const gasYr  = energyAnnualCost(tdcv.gas,  ENERGY_RATES.gas_unit_p,  ENERGY_RATES.gas_standing_p);
+  const elecMo = elecYr / 12;
+  const gasMo  = gasYr / 12;
+
+  // WATER
+  const waterMo = WATER_DEFAULT / 12;
+
+  // BROADBAND — DSS tenants on UC eligible for social tariff
+  const onUC = results.some(r => r.id.startsWith('uc_') && r.amount > 0);
+  const bbMo = onUC ? BROADBAND.social_low : BROADBAND.standard;
+
+  // FOOD
+  const adults = p.adults || 1;
+  const isPensioner = p.age >= 66;
+  const kids = p.children || 0;
+  // Rough split between teens vs younger kids: assume all under 12 unless 3+ kids (then mix)
+  const teens = Math.floor(kids/2);
+  const youngKids = kids - teens;
+  const foodMo = (isPensioner ? FOOD.pensioner : FOOD.adult) * adults
+               + FOOD.teen * teens
+               + FOOD.child * youngKids;
+
+  // TV LICENCE
+  const tvLicenceFree = p.age >= 75 && p.earned < 16000 && p.capital < 16000;
+  const tvMo = tvLicenceFree ? 0 : TV_LICENCE_MO;
+
+  // TOTALS
+  const totalOutMo = rent + ctMo + elecMo + gasMo + waterMo + bbMo + foodMo + tvMo;
+  const totalSupportMo = housingApplied + ctReductionMo;  // benefit-derived offsets
+  const netRequired = totalOutMo - totalSupportMo;  // what tenant actually pays from their pocket
+  const monthlyIncome = def / 12 + (p.earned || 0)/12;  // UC + other benefits + earnings (housing element already inside UC)
+  const surplus = monthlyIncome - netRequired;
+
+  const fmtM = n => '£' + Math.round(n).toLocaleString('en-GB');
+  const sign = n => (n>=0?'+':'') + fmtM(n);
+
+  let rows = '';
+
+  // Header row
+  rows += `<tr class="group-head"><td colspan="3">Monthly outgoings on this property</td></tr>`;
+
+  // RENT
+  rows += `<tr><td class="lbl">🏠 Rent</td><td class="amt out">−${fmtM(rent)}</td><td class="note">${fmtM(rentYr)}/yr</td></tr>`;
+  if (housingApplied > 0)
+    rows += `<tr class="subline"><td>&nbsp;&nbsp;↳ Housing Element from UC</td><td class="amt in">+${fmtM(housingApplied)}</td><td class="note">${rent > lhaCap ? `capped at LHA £${lhaCap}/mo for ${p.bedroom}-bed in ${p.brma||'your area'}` : 'UC covers your rent in full'}</td></tr>`;
+  if (rentShortfall > 0)
+    rows += `<tr class="shortfall"><td>&nbsp;&nbsp;⚠ Rent shortfall &mdash; you pay this</td><td class="amt">−${fmtM(rentShortfall)}</td><td class="note">comes from your other benefits</td></tr>`;
+
+  // COUNCIL TAX
+  rows += `<tr><td class="lbl">🏛️ Council Tax (Band A est.)</td><td class="amt out">−${fmtM(ctMo)}</td><td class="note">${affordState.la ? affordState.la : 'UK avg'} &middot; ${fmtM(ctYr)}/yr</td></tr>`;
+  if (ctReductionMo > 0)
+    rows += `<tr class="subline"><td>&nbsp;&nbsp;↳ Council Tax Reduction (${Math.round(ctrPct*100)}%)</td><td class="amt in">+${fmtM(ctReductionMo)}</td><td class="note">${ctrPct===1 ? 'full reduction — confirm with council' : 'tapered by your earnings'}</td></tr>`;
+  const ctShortfall = ctMo - ctReductionMo;
+  if (ctShortfall > 0.5)
+    rows += `<tr class="shortfall"><td>&nbsp;&nbsp;⚠ Council Tax shortfall</td><td class="amt">−${fmtM(ctShortfall)}</td><td class="note">you pay this from income</td></tr>`;
+
+  // UTILITIES
+  rows += `<tr class="group-head"><td colspan="3">Utilities &middot; ${tdcv.label}</td></tr>`;
+  rows += `<tr><td class="lbl">⚡ Electricity</td><td class="amt out">−${fmtM(elecMo)}</td><td class="note">${tdcv.elec.toLocaleString()} kWh/yr · Ofgem ${ENERGY_RATES.elec_unit_p}p/kWh</td></tr>`;
+  rows += `<tr><td class="lbl">🔥 Gas</td><td class="amt out">−${fmtM(gasMo)}</td><td class="note">${tdcv.gas.toLocaleString()} kWh/yr · Ofgem ${ENERGY_RATES.gas_unit_p}p/kWh</td></tr>`;
+  rows += `<tr><td class="lbl">💧 Water</td><td class="amt out">−${fmtM(waterMo)}</td><td class="note">UK avg combined w+s £${WATER_DEFAULT}/yr</td></tr>`;
+  rows += `<tr><td class="lbl">📡 Broadband</td><td class="amt out">−${fmtM(bbMo)}</td><td class="note">${onUC ? 'BT Home Essentials social tariff (UC claimants qualify)' : 'standard fibre package'}</td></tr>`;
+  if (!tvLicenceFree) rows += `<tr><td class="lbl">📺 TV Licence</td><td class="amt out">−${fmtM(tvMo)}</td><td class="note">£${TV_LICENCE}/yr</td></tr>`;
+  else                rows += `<tr><td class="lbl">📺 TV Licence</td><td class="amt in">FREE</td><td class="note">75+ on Pension Credit</td></tr>`;
+
+  // FOOD
+  rows += `<tr class="group-head"><td colspan="3">Food &middot; based on ${adults} adult${adults>1?'s':''}${kids?' + '+kids+' child'+(kids>1?'ren':''):''}</td></tr>`;
+  rows += `<tr><td class="lbl">🥦 Groceries &middot; essentials</td><td class="amt out">−${fmtM(foodMo)}</td><td class="note">JRF Minimum Income Standard 2024</td></tr>`;
+
+  // TOTAL OUTGOINGS
+  rows += `<tr class="subtotal"><td class="lbl">Total outgoings</td><td class="amt out">−${fmtM(totalOutMo)}</td><td class="note">/month</td></tr>`;
+  rows += `<tr class="subtotal"><td class="lbl">&nbsp;&nbsp;↳ Less benefit support (UC housing + CTR)</td><td class="amt in">+${fmtM(totalSupportMo)}</td><td class="note">already in your benefits</td></tr>`;
+  rows += `<tr class="subtotal"><td class="lbl">You actually pay from your income</td><td class="amt out">−${fmtM(netRequired)}</td><td class="note">/month from pocket</td></tr>`;
+
+  // INCOME
+  rows += `<tr class="group-head"><td colspan="3">Your monthly income</td></tr>`;
+  rows += `<tr><td class="lbl">UC + other benefits + earnings</td><td class="amt in">+${fmtM(monthlyIncome)}</td><td class="note">/month total</td></tr>`;
+
+  // BOTTOM LINE
+  const surplusClass = surplus >= 200 ? 'surplus' : (surplus >= 0 ? '' : 'deficit');
+  rows += `<tr class="net"><td>${surplus>=0?'✓ Left for travel, clothes, savings':'✗ Monthly shortfall'}</td><td class="amt ${surplusClass}">${sign(surplus)}</td><td class="note" style="color:#9ca3af">/month</td></tr>`;
+
+  tbody.innerHTML = rows;
+
+  // Verdict
+  const v = document.getElementById('afford-verdict');
+  if (surplus >= 300) {
+    v.className = 'verdict good';
+    v.innerHTML = `<div class="ico">✅</div><div class="body"><div class="h">Affordable &mdash; you'd have ${fmtM(surplus)}/mo left over</div><div class="d">After paying rent, council tax, utilities, broadband and groceries, you have a comfortable surplus for travel, clothes, savings, emergencies.</div></div>`;
+  } else if (surplus >= 0) {
+    v.className = 'verdict tight';
+    v.innerHTML = `<div class="ico">⚠️</div><div class="body"><div class="h">Tight &mdash; only ${fmtM(surplus)}/mo left after essentials</div><div class="d">Possible but no margin for unexpected costs (boiler breakdown, school trips, replacing clothes). Consider a property with rent under ${fmtM(rent - 100)}/mo to give yourself breathing room.</div></div>`;
+  } else {
+    v.className = 'verdict bad';
+    v.innerHTML = `<div class="ico">🛑</div><div class="body"><div class="h">Unaffordable &mdash; ${fmtM(-surplus)}/mo short every month</div><div class="d">Your benefits + earnings won't cover the full cost of this property. Look for rent below <strong>${fmtM(rent + surplus - 50)}/mo</strong> (give yourself a £50 buffer) or move to a smaller property / cheaper area.</div></div>`;
+  }
+
+  // Property browse link with affordable budget
+  const affRent = Math.max(300, Math.round(rent + Math.min(0, surplus - 50)));
+  const loc = p.brma ? p.brma.split(' ')[0] : '';
+  document.getElementById('btn-afford-search').href =
+    `https://app.dssmove.co.uk/property-to-rent${loc?`?location=${encodeURIComponent(loc)}&`:'?'}maxRent=${affRent}`;
+}
+
+// Wire affordability controls
+document.getElementById('afford-rent').addEventListener('input', e => {
+  affordState.rent = +e.target.value;
+  document.getElementById('afford-rent-v').textContent = '£' + affordState.rent + '/mo';
+  renderAfford();
+});
+document.getElementById('afford-size').addEventListener('change', e => {
+  affordState.size = e.target.value;
+  renderAfford();
+});
+
+// ═══════════════════════════════════════════════════════════
+// PROPERTY RESULTS MODULE — fetch live listings from Dssmove
+// ═══════════════════════════════════════════════════════════
+const DSSMOVE_SEARCH_API = 'https://staged-api.dssmove.co.uk/api/tenant/search-property';
+const DSSMOVE_VIEW_BASE = 'https://app.dssmove.co.uk/property/view/';
+const DSSMOVE_SEARCH_PAGE = 'https://app.dssmove.co.uk/property/search';
+
+const propsState = {page:1, total:0, perPage:10, allItems:[], lastQuery:null, loading:false};
+
+// Big-city fallbacks by region (when an LA name returns 0 hits — e.g., "City of London")
+const REGION_FALLBACK = {
+  'Greater London':'London','London':'London',
+  'Greater Manchester':'Manchester',
+  'West Midlands':'Birmingham','West Yorkshire':'Leeds','South Yorkshire':'Sheffield',
+  'Merseyside':'Liverpool','Tyne and Wear':'Newcastle','Strathclyde':'Glasgow',
+  'Lothian':'Edinburgh','Mid Glamorgan':'Cardiff','South Glamorgan':'Cardiff',
+};
+// Resolve a location name (LA or town) into a Dssmove-recognised location string.
+// Calls Dssmove's own location-suggestion endpoint and picks the best 'town' match
+// (one whose name matches the input — avoids matching "Inner" → "Innerleven").
+const dssmoveLocCache = {};
+async function resolveDssmoveLocation(name) {
+  if (!name) return null;
+  const key = name.toLowerCase().trim();
+  if (dssmoveLocCache[key]) return dssmoveLocCache[key];
+  try {
+    const r = await fetch('https://staged-api.dssmove.co.uk/api/tenant/location-suggestion', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({keyword: name}),
+    });
+    if (r.ok) {
+      const j = await r.json();
+      const items = j?.data || [];
+      // Find a town whose name MATCHES the input (case-insensitive equality or starts-with).
+      // Avoids fuzzy mismatches like "Inner" → "Innerleven".
+      const town = items.find(i =>
+        i.type === 'town' &&
+        i.location?.toLowerCase() === key
+      ) || items.find(i =>
+        i.type === 'town' &&
+        i.location?.toLowerCase().startsWith(key + ' ')
+      );
+      if (town?.location) {
+        const result = {location: town.location, county: town.additional || ''};
+        dssmoveLocCache[key] = result;
+        return result;
+      }
+    }
+  } catch (e) { /* network err */ }
+  dssmoveLocCache[key] = null;
+  return null;
+}
+
+// Normalise a property's monthly rent (some listings are weekly)
+function monthlyPrice(p) {
+  const v = +p.price || 0;
+  if ((p.price_interval || '').toLowerCase() === 'weekly') return Math.round(v * 52 / 12);
+  return Math.round(v);
+}
+
+function affordabilityBadge(propMonthly, budgetMo) {
+  if (!budgetMo) return null;
+  if (propMonthly <= budgetMo) return {cls:'good', text:`✓ Within £${budgetMo}/mo budget`};
+  const over = propMonthly - budgetMo;
+  if (over <= 100) return {cls:'tight', text:`⚠ £${over}/mo over budget`};
+  return {cls:'over', text:`✗ £${over}/mo over budget`};
+}
+
+function escHTML(s) {
+  return String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function buildPcardHTML(prop, budgetMo, lhaCap) {
+  const priceMo = monthlyPrice(prop);
+  const badge = affordabilityBadge(priceMo, budgetMo);
+  // Validate image URL — only allow https:// from known hosts (s3, aws, dssmove)
+  const rawImg = prop.image?.file?.path || '';
+  const img = /^https:\/\/(s3[-.]|.*\.amazonaws\.com|.*\.dssmove\.co\.uk)/i.test(rawImg) ? rawImg : '';
+  const title = escHTML(prop.title || prop.property_type || 'Property');
+  const addr = [prop.addr_address, prop.addr_address_2, prop.addr_city, prop.addr_pcode].filter(Boolean).join(', ');
+  // Cast bedroom count to a plain integer to remove any string-based injection risk
+  const bedNum = parseInt(prop.num_bedroom, 10);
+  const beds = Number.isFinite(bedNum) && bedNum > 0 ? `${bedNum} bed` : '';
+  const type = escHTML((prop.property_type || '').toLowerCase());
+  // Cast id to integer for the URL
+  const propId = parseInt(prop.id, 10);
+  const viewUrl = Number.isFinite(propId) ? `${DSSMOVE_VIEW_BASE}${propId}` : DSSMOVE_SEARCH_PAGE;
+  // Quick affordability snippet (housing element vs rent)
+  const housing = lhaCap ? Math.min(priceMo, lhaCap) : priceMo;
+  const shortfall = Math.max(0, priceMo - housing);
+  return `
+    <div class="pcard">
+      <div class="img"${img ? ` style="background-image:url('${encodeURI(img).replace(/'/g,'%27')}')"` : ''}>
+        ${img ? '' : '<div class="img-placeholder">🏠</div>'}
+        ${badge ? `<div class="badge ${badge.cls}">${badge.text}</div>` : ''}
+      </div>
+      <div class="body">
+        <div class="price">£${priceMo.toLocaleString('en-GB')}<span class="per"> /mo</span></div>
+        <div class="ttl">${title}</div>
+        <div class="addr">${escHTML(addr)}</div>
+        <div class="meta">
+          ${beds ? `<span class="chip-tag">🛏 ${beds}</span>` : ''}
+          ${type ? `<span class="chip-tag">${escHTML(type)}</span>` : ''}
+        </div>
+        <div class="breakdown">
+          <div class="row"><span>Rent</span><strong>£${priceMo}/mo</strong></div>
+          <div class="row"><span>UC Housing Element</span><strong style="color:#16a34a">+£${housing}/mo</strong></div>
+          ${shortfall > 0 ? `<div class="row"><span style="color:var(--danger)">⚠ Shortfall (you pay)</span><strong style="color:var(--danger)">−£${shortfall}/mo</strong></div>` : ''}
+        </div>
+        <div class="actions">
+          <a class="run" href="javascript:void(0)" data-rent="${priceMo}">↓ Run full breakdown</a>
+          <a class="view" href="${viewUrl}" target="_blank" rel="noopener">View listing →</a>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function fetchProperties(filters, append=false) {
+  const out = document.getElementById('props-output');
+  const summary = document.getElementById('props-summary');
+  const btn = document.getElementById('btn-props-search');
+  propsState.loading = true;
+  btn.disabled = true; btn.textContent = '⏳ Searching…';
+  if (!append) out.innerHTML = `<div class="props-loading"><div class="spinner"></div><div>Searching Dssmove for live listings…</div></div>`;
+
+  const body = {};
+  if (filters.location) body.location = filters.location;
+  if (filters.county) body.county = filters.county;
+  if (filters.radius)  body.radius = filters.radius;
+  if (filters.type)    body.type = filters.type;
+  if (filters.bed_min) body.bed_min = filters.bed_min;
+  if (filters.bed_max) body.bed_max = filters.bed_max;
+  if (filters.price_min) body.price_min = filters.price_min;
+  if (filters.price_max) body.price_max = filters.price_max;
+  body.sortby = filters.sortby || 'created_at';
+  body.order  = filters.order  || 'DESC';
+  body.page   = filters.page   || 1;
+
+  propsState.lastQuery = body;
+
+  try {
+    const r = await fetch(`${DSSMOVE_SEARCH_API}?page=${body.page}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) throw new Error(`Dssmove API returned ${r.status}`);
+    const json = await r.json();
+    const props = json?.data?.properties;
+    const items = props?.data || [];
+    propsState.total = props?.total || items.length;
+    propsState.perPage = props?.per_page || 10;
+    propsState.page = props?.current_page || 1;
+    if (!append) propsState.allItems = items;
+    else propsState.allItems = propsState.allItems.concat(items);
+
+    renderPropertyCards(filters.budgetMo, filters.lhaCap);
+
+    summary.style.display = '';
+    const loc = body.location || 'all areas';
+    const priceText = body.price_max ? ` under £${body.price_max}/mo` : '';
+    summary.innerHTML = `Showing <strong>${propsState.allItems.length} of ${propsState.total}</strong> live listings in <strong>${escHTML(loc)}</strong>${priceText}. Sorted by newest first.`;
+  } catch (e) {
+    out.innerHTML = `<div class="props-error"><strong>Couldn't load properties.</strong> ${escHTML(e.message)}. <br><a href="${DSSMOVE_SEARCH_PAGE}" target="_blank" rel="noopener">Search on Dssmove directly →</a></div>`;
+  } finally {
+    propsState.loading = false;
+    btn.disabled = false; btn.textContent = '🔎 Search homes';
+  }
+}
+
+function renderPropertyCards(budgetMo, lhaCap) {
+  const out = document.getElementById('props-output');
+  const items = propsState.allItems;
+  if (!items.length) {
+    out.innerHTML = `
+      <div class="props-empty">
+        <div class="emoji">🏚</div>
+        <div class="h">No properties found with these filters</div>
+        <div>Try widening the radius, increasing the max rent, or removing the bedroom filter.</div>
+      </div>`;
+    return;
+  }
+  let html = `<div class="props-grid">${items.map(p => buildPcardHTML(p, budgetMo, lhaCap)).join('')}</div>`;
+  // Pagination — "load more" if there's more pages
+  const hasMore = (propsState.page * propsState.perPage) < propsState.total;
+  if (hasMore) html += `<div class="props-more"><button id="btn-props-more">Load more (page ${propsState.page+1})</button></div>`;
+  out.innerHTML = html;
+
+  // Wire "run full breakdown" links — sets rent slider above to that property's monthly + scrolls up
+  out.querySelectorAll('.actions a.run').forEach(a => {
+    a.addEventListener('click', () => {
+      const r = +a.dataset.rent;
+      affordState.rent = r;
+      document.getElementById('afford-rent').value = r;
+      document.getElementById('afford-rent-v').textContent = '£' + r + '/mo';
+      renderAfford();
+      document.getElementById('afford-section').scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+
+  // Wire "load more"
+  const more = document.getElementById('btn-props-more');
+  if (more) more.addEventListener('click', () => {
+    const filters = {...propsState.lastQuery, page: propsState.page + 1, budgetMo, lhaCap};
+    fetchProperties(filters, /*append=*/true);
+  });
+}
+
+function gatherPropertyFilters() {
+  return {
+    location: document.getElementById('pf-location').value.trim(),
+    radius:   document.getElementById('pf-radius').value,
+    type:     document.getElementById('pf-type').value,
+    bed_min:  document.getElementById('pf-bed-min').value,
+    bed_max:  document.getElementById('pf-bed-max').value,
+    price_min:+document.getElementById('pf-price-min').value || 0,
+    price_max:+document.getElementById('pf-price-max').value || 2500,
+  };
+}
+
+async function initPropertyResults() {
+  const s = window._state; if (!s) return;
+  const p = s.p;
+
+  // Find a Dssmove-recognised town name. Strategy:
+  //  1. If we're in a Greater London BRMA → just use "London" (always works, 100+ listings)
+  //  2. Try the detected LA name via resolveDssmoveLocation (strict match)
+  //  3. Fall back to a known big-city alias by LA county
+  let dssLoc = '';
+  if (LONDON.has(p.brma)) {
+    dssLoc = 'London';
+  } else {
+    // Try the LA name
+    const r = affordState.la ? await resolveDssmoveLocation(affordState.la) : null;
+    if (r?.location) dssLoc = r.location;
+  }
+  // Regional fallback (Greater London → London, Greater Manchester → Manchester, etc.)
+  if (!dssLoc) {
+    for (const [cnty, town] of Object.entries(REGION_FALLBACK)) {
+      if ((affordState.la || '').toLowerCase().includes(cnty.toLowerCase()) || (p.brma || '').toLowerCase().includes(cnty.toLowerCase())) {
+        dssLoc = town; break;
+      }
+    }
+  }
+  // Last resort: use the LA name as-is (user can edit and re-search)
+  if (!dssLoc) dssLoc = affordState.la || '';
+  document.getElementById('pf-location').value = dssLoc;
+
+  // Max rent: housing element budget (LHA cap) + 10% headroom so they see some they could "stretch" to
+  const lhaCap = p.lha_cap || 0;
+  const housingMo = lhaCap || (s.results.find(r=>r.id==='uc_housing')?.amount || 0)/12;
+  const defaultMax = Math.round(housingMo * 1.10) || 700;
+  document.getElementById('pf-price-max').value = defaultMax;
+
+  // Bedrooms — set min to user's bedroom answer; leave max open by default so they see more options
+  const bed = p.bedroom;
+  if (bed && bed !== 'SAR') {
+    const b = +bed;
+    document.getElementById('pf-bed-min').value = b;
+    // No max bedroom filter by default — bigger places sometimes have rooms at lower price
+  }
+
+  // Trigger initial search
+  searchProperties();
+
+  // Wire button
+  document.getElementById('btn-props-search').onclick = searchProperties;
+  // Pressing Enter in the location field searches
+  document.getElementById('pf-location').addEventListener('keydown', e => {
+    if (e.key === 'Enter') searchProperties();
+  });
+}
+
+function searchProperties() {
+  const f = gatherPropertyFilters();
+  const s = window._state;
+  f.budgetMo = s?.p?.lha_cap || +document.getElementById('pf-price-max').value;
+  f.lhaCap = s?.p?.lha_cap || 0;
+  f.page = 1;
+  fetchProperties(f, /*append=*/false);
+}
+
+// ═══════ Buttons in results view ═══════
+document.getElementById('btn-edit').addEventListener('click', () => {
+  document.getElementById('results-view').style.display = 'none';
+  document.getElementById('wizard-view').style.display = '';
+  goStep(curStep);
+});
+
+document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+document.getElementById('btn-save').addEventListener('click', () => {
+  const s = window._state; if (!s) return;
+  const hist = JSON.parse(localStorage.getItem('dssmove_calc_history')||'[]');
+  hist.unshift({
+    when: new Date().toISOString(),
+    total: s.def,
+    label: `${s.p.adults===2?'Couple':'Single'} · age ${s.p.age} · ${s.p.children?s.p.children+' kid'+(s.p.children>1?'s':''):'no kids'}${s.p.brma?' · '+s.p.brma.split(' ')[0]:''}`,
+    state: s.p,
+  });
+  localStorage.setItem('dssmove_calc_history', JSON.stringify(hist.slice(0,10)));
+  renderHistory();
+  toast('💾 Calculation saved');
+});
+
+document.getElementById('btn-share').addEventListener('click', async () => {
+  const s = window._state; if (!s) return;
+  // The share link contains the user's answers (age, household, earnings, postcode, etc.).
+  // Warn them before they generate it so they don't accidentally forward sensitive info.
+  if (!confirm("⚠ This share link will contain your answers (age, household, earnings, postcode). Only share it with people you trust. Continue?")) {
+    return;
+  }
+  const url = new URL(window.location.href);
+  url.searchParams.set('p', btoa(JSON.stringify(s.p)));
+  const link = url.toString();
+  try {
+    await navigator.clipboard.writeText(link);
+    toast('🔗 Share link copied — only share with people you trust');
+  } catch {
+    prompt('Copy this share link (treat it as private — contains your answers):', link);
+  }
+});
+
+function renderHistory() {
+  const hist = JSON.parse(localStorage.getItem('dssmove_calc_history')||'[]');
+  const el = document.getElementById('history-list');
+  if (!hist.length) {el.innerHTML='<div class="history-empty">No saved calculations yet</div>'; return;}
+  el.innerHTML = hist.map((h,i) => `
+    <div class="history-item" data-idx="${i}">
+      <div><div>${h.label}</div><div class="when">${new Date(h.when).toLocaleDateString('en-GB')}</div></div>
+      <div class="amt">£${Math.round(h.total).toLocaleString('en-GB')}</div>
+    </div>
+  `).join('');
+  el.querySelectorAll('.history-item').forEach(it => it.addEventListener('click', () => {
+    const idx = +it.dataset.idx;
+    const h = hist[idx];
+    if (!h) return;
+    Object.entries(h.state).forEach(([k,v]) => {
+      const elx = document.getElementById(k); if (!elx) return;
+      if (elx.type==='hidden') {
+        elx.value = v;
+        const g = document.querySelector(`.toggle-group[data-input="${k}"]`);
+        if (g) g.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.value===String(v)));
+      } else elx.value = v;
+    });
+    recalc();
+    document.getElementById('results-view').style.display = 'none';
+    document.getElementById('wizard-view').style.display = '';
+    showResults();
+  }));
+}
+
+// Restore from URL
+function restoreFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const p = params.get('p');
+  if (!p) return;
+  try {
+    const state = JSON.parse(atob(p));
+    Object.entries(state).forEach(([k,v]) => {
+      const el = document.getElementById(k); if (!el) return;
+      if (el.type==='hidden') {
+        el.value = v;
+        const g = document.querySelector(`.toggle-group[data-input="${k}"]`);
+        if (g) g.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.value===String(v)));
+      } else el.value = v;
+    });
+    recalc();
+    showResults();
+  } catch(e) {}
+}
+
+document.getElementById('btn-search-prop').addEventListener('click', async () => {
+  const loc = document.getElementById('search-loc').value.trim();
+  const resultsShown = document.getElementById('results-view').style.display !== 'none';
+  if (resultsShown && loc) {
+    // If user typed a postcode, refresh the council-tax lookup for that location
+    const looksLikePostcode = /^[A-Z]{1,2}\d/i.test(loc);
+    if (looksLikePostcode) {
+      const la = await postcodeToLA(loc);
+      if (la && CT_BAND_A[la] !== undefined) {
+        affordState.la = la;
+        affordState.ctBandA = CT_BAND_A[la];
+        document.getElementById('afford-la').innerHTML = `📍 ${escHTML(la)} &middot; Band A: £${CT_BAND_A[la]}/yr`;
+        renderAfford();
+        toast(`📍 Switched to ${la} — affordability updated`);
+      } else if (la) {
+        affordState.la = la;
+        affordState.ctBandA = CT_DEFAULT;
+        document.getElementById('afford-la').innerHTML = `📍 ${escHTML(la)} &middot; <em>using UK avg</em>`;
+        renderAfford();
+        toast(`📍 ${la} — using UK avg council tax`);
+      }
+    }
+    // Scroll to affordability section so the user sees the breakdown
+    document.getElementById('afford-section').scrollIntoView({behavior:'smooth', block:'start'});
+  } else {
+    // No results yet — open dssmove search in new tab
+    window.open(`https://app.dssmove.co.uk/property-to-rent${loc?'?location='+encodeURIComponent(loc):''}`, '_blank');
+  }
+});
+
+// Toast
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// Wire inputs
+document.querySelectorAll('input,select').forEach(el => {
+  el.addEventListener('input', recalc);
+  el.addEventListener('change', recalc);
+});
+
+// Initial
+recalc();
+renderHistory();
+restoreFromUrl();
+</script>
+
+</body>
+</html>

@@ -43,9 +43,11 @@ SITE_URL = "https://blog.dssmove.co.uk"
 SITE_NAME = "DSSmove blog"
 PUBLISHER_NAME = "DSSmove"
 
-# Calculator URL — hosted on the main site, not on this subdomain.
+# Calculator URL — standalone benefits calculator hosted from this blog at /calculator/.
+# Source HTML is at static/calculator/index.html.
+# Was originally intended to live at www.dssmove.co.uk/calculator/ but that was never deployed.
 # Used by the calculator banner in base.html / post.html templates.
-CALCULATOR_URL = "https://www.dssmove.co.uk/calculator/"
+CALCULATOR_URL = "https://blog.dssmove.co.uk/calculator/"
 
 # GitHub Pages custom-domain CNAME. Written into public/CNAME on every build.
 # Pages reads this file to know the site's custom hostname.
@@ -762,6 +764,12 @@ def write_site(posts):
     if STATIC_DIR.is_dir():
         dest = OUTPUT_DIR / "static"
         shutil.copytree(STATIC_DIR, dest)
+
+    # Also expose the standalone calculator at the clean root URL /calculator/
+    # (in addition to /static/calculator/). Keeps CALCULATOR_URL pretty.
+    calc_src = STATIC_DIR / "calculator"
+    if calc_src.is_dir():
+        shutil.copytree(calc_src, OUTPUT_DIR / "calculator")
 
 
 # ---------------------------------------------------------------------------
