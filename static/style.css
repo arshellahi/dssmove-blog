@@ -30,8 +30,7 @@ body {
   margin: 0;
   padding: 0;
   /* system-ui matches what app.dssmove.co.uk uses (Chakra default). */
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-               Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 17px;
   line-height: 1.65;
   color: var(--ink-soft);    /* warm brown-grey body — matches site */
@@ -113,7 +112,9 @@ main, .site-header, .site-footer {
 }
 
 .site-brand {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   text-decoration: none;
   color: inherit;
 }
@@ -121,18 +122,19 @@ main, .site-header, .site-footer {
 
 .site-logo {
   display: block;
-  height: 60px;
+  height: 44px;
   width: auto;
-  max-width: 100%;
 }
 
+/* DSSmove brand header: same logo, slogan and sizes on every DSSmove page */
 .site-slogan {
-  margin: 0.5rem 0 0;
-  font-size: 0.95rem;
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 800;
   color: var(--brand-purple);
-  font-weight: 600;
-  letter-spacing: 0.01em;
 }
+.site-slogan em { font-style: normal; color: #7A9A2B; }
+@media (max-width: 639px) { .site-slogan { font-size: 13px; line-height: 16px; } }
 
 /* --- Footer ---------------------------------------------------------- */
 
